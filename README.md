@@ -64,8 +64,8 @@ samples/platform/baremetal/run.sh
 Assume that you have Kubernetes installed, then you may just apply the yaml files of sample mock apps
 
 ```bash
-kubectl create namespace solar-mock-shop
-kubectl -n solar-mock-shop apply samples/platform/kube
+kubectl --context cluster01 create namespace solar-mock-shop
+kubectl --context cluster01 -n solar-mock-shop apply samples/platform/kube/cluster01
 ```
 
 ### Test it
