@@ -2,10 +2,12 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	//"github.com/mileusna/useragent"
 	"github.com/opentracing/opentracing-go"
@@ -82,9 +84,11 @@ func (c *Controller) Get(_ struct {
 	var newSpan opentracing.Span
 
 	//response.Data.UserAgent = ua.Parse(ctx.GetHeader("User-Agent"))
-	fiSvc := ctx.GetHeader("fi-svc")
+	fiApp := ctx.GetHeader("fi-app")
 	fiVer := ctx.GetHeader("fi-ver")
+	fiCluster := ctx.GetHeader("fi-cluster")
 	fiCode, _ := strconv.Atoi(ctx.GetHeader("fi-code"))
+	fiDelay, _ := strconv.Atoi(ctx.GetHeader("fi-delay"))
 	response.Data.Url = ctx.Host() + ctx.Path()
 	response.Data.App = c.AppName
 	response.Data.Version = c.Version
@@ -143,11 +147,30 @@ func (c *Controller) Get(_ struct {
 
 	response.Code = 200
 	response.Message = "Success"
-	if fiSvc == c.AppName {
-		if fiVer == "" || fiVer != "" && fiVer == c.Version {
-			ctx.StatusCode(fiCode)
+	if fiApp == c.AppName {
+
+		hasFaultInjection := false
+
+		if fiVer != "" && fiVer == c.Version {
+			hasFaultInjection = true
+		}
+
+		if fiCluster != "" && fiCluster == c.ClusterName {
+			hasFaultInjection = true
+		}
+
+		if fiVer == "" || hasFaultInjection {
+			faultInjectionMessage := ""
+			if fiCode != 0 {
+				ctx.StatusCode(fiCode)
+				faultInjectionMessage += fmt.Sprintf(" with code: %d", fiCode)
+			}
+			if fiDelay != 0 {
+				time.Sleep(time.Duration(fiDelay))
+				faultInjectionMessage += fmt.Sprintf(" with delay: %d", fiDelay)
+			}
 			response.Code = fiCode
-			response.Message = "Fault Injection with: " + string(fiCode)
+			response.Message = fmt.Sprintf("Fault Injection %v", faultInjectionMessage)
 		}
 	}
 

@@ -6,9 +6,10 @@ As for the Service Mesh testing, sometimes we want to do fault injection to the 
 
 | Header   |      Description      |  Example |
 |----------|:-------------|:------|
-| fi-svc | The app name | product  |
+| fi-app | The app name | product  |
 | fi-ver | The app version, it is optional   |   v1 |
 | fi-code | Response code |    503 |
+| fi-delay | Response with delay |    2 |
 
 Example 
 
@@ -16,7 +17,7 @@ Using httpie to send the request to the mock app
 
 ```bash
 
-http http://localhost:8083 fi-svc:product fi-code:503 
+http http://localhost:8083 fi-app:product fi-code:503 
 
 ```
 
@@ -74,7 +75,7 @@ using httpie or curl to see the response of these mock apps
 if solar-mock-app is deployed on Kubernetes, you can use NodePort or port forward frontend-api to localhost, then sending request to http://localhost:8083
 
 ```bash
-http http://localhost:8083 fi-svc:product fi-code:503 
+http http://localhost:8083 fi-app:product fi-code:503 
 ```
 
 The output will be as follows,

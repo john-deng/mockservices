@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: product
+  labels:
+    app: product
+spec:
+  ports:
+    - port: 8080
+      name: http
+      targetPort: 8080
+  selector:
+    app: product
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-v1
+  labels:
+    app: product
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product
+      version: v1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: product
+        version: v1
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: product
+          image: solarmesh/solar-mock-app:latest
+          imagePullPolicy: Always # IfNotPresent
+          env:
+            - name: APP_NAME
+              value: product
+            - name: APP_VERSION
+              value: v1
+            - name: CLUSTER_NAME
+              value: cluster03
+            - name: USER_DATA
+              value: Your customized user data
+          ports:
+            - containerPort: 8080  

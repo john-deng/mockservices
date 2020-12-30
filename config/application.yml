@@ -3,7 +3,7 @@
 
 app:
   project: solarmesh
-  name: solar-demo-app
+  name: solar-mock-app
   profiles:
     include:
     - logging
