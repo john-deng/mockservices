@@ -59,7 +59,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=order \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
-    -e UPSTREAM_URLS='http://product:8080/,http://inventory:8080/,http://payment:8080/,' \
+    -e UPSTREAM_URLS='http://inventory:8080/,http://payment:8080/,' \
     -e LOGGING_LEVEL=debug \
     solarmesh/solar-mock-app:latest
 fi

@@ -2,16 +2,18 @@
 
 rm -f ./solar-mock-app
 
-if [[ ! -f solar-mock-app ]]; then
-  echo "Assume that you have Go installed, run go build"
-  go build
-fi
 
 if [[  $(ps aux | grep -c solar-mock-app) -gt 1 ]]; then
   killall solar-mock-app
 fi
 
 if [[ "$1" != "cleanup" ]]; then
+
+  if [[ ! -f solar-mock-app ]]; then
+    echo "Assume that you have Go installed, run go build"
+    go build
+  fi
+
   # Run as product v1
   nohup ./solar-mock-app \
     --app.name=product \
@@ -48,15 +50,6 @@ if [[ "$1" != "cleanup" ]]; then
     --cluster.name=cluster02 \
     --user.data=demo \
     --server.port=8083 \
-    --upstream.urls='http://localhost:8080/,http://localhost:8081/,http://localhost:8082/' &
+    --upstream.urls='http://localhost:8081/,http://localhost:8082/' &
 
 fi
-
-./solar-mock-app \
-    --app.name=payment \
-    --app.version=v2 \
-    --cluster.name=cluster02 \
-    --user.data=demo \
-    --server.port=8084 \
-    --logging.level=debug \
-    --upstream.urls='http://localhost:8080/,http://localhost:8081/,http://localhost:8082/'
