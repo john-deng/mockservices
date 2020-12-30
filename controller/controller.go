@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/mileusna/useragent"
+	//"github.com/mileusna/useragent"
 	"github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
 	"golang.org/x/net/context"
@@ -45,15 +45,17 @@ func init() {
 }
 
 type ResponseData struct {
-	Url       string
-	App       string
-	Version   string
-	Cluster   string
-	UserData  string
-	MetaData  string
-	UserAgent ua.UserAgent
-	Header    http.Header
-	Upstream  []*GetResponse
+	Url              string
+	App              string
+	Version          string
+	SourceApp        string
+	SourceAppVersion string
+	Cluster          string
+	UserData         string
+	MetaData         string
+	//UserAgent ua.UserAgent
+	Header   http.Header
+	Upstream []*GetResponse
 }
 
 type GetResponse struct {
@@ -77,7 +79,7 @@ func (c *Controller) Get(_ struct {
 	}
 	var newSpan opentracing.Span
 
-	response.Data.UserAgent = ua.Parse(ctx.GetHeader("User-Agent"))
+	//response.Data.UserAgent = ua.Parse(ctx.GetHeader("User-Agent"))
 	fiSvc := ctx.GetHeader("fi-svc")
 	fiVer := ctx.GetHeader("fi-ver")
 	fiCode, _ := strconv.Atoi(ctx.GetHeader("fi-code"))
@@ -110,7 +112,8 @@ func (c *Controller) Get(_ struct {
 					byteResp, _ := ioutil.ReadAll(resp.Body)
 					_ = json.Unmarshal(byteResp, upstreamResponse)
 				}
-
+				upstreamResponse.Data.SourceApp = c.AppName
+				upstreamResponse.Data.SourceAppVersion = c.Version
 				response.Data.Upstream = append(response.Data.Upstream, upstreamResponse)
 
 				if newSpan != nil {

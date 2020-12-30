@@ -23,7 +23,6 @@ import (
 	"fmt"
 
 	"golang.org/x/net/context"
-	_ "hidevops.io/demo/greeter-server/controller"
 	"hidevops.io/hiboot/examples/web/grpc/helloworld/protobuf"
 	"hidevops.io/hiboot/pkg/app"
 	"hidevops.io/hiboot/pkg/app/web"
@@ -31,6 +30,7 @@ import (
 	"hidevops.io/hiboot/pkg/starter/grpc"
 	"hidevops.io/hiboot/pkg/starter/jaeger"
 	"hidevops.io/hiboot/pkg/starter/logging"
+	_ "solarmesh.io/solar-mock-app/controller"
 )
 
 // server is used to implement protobuf.GreeterServer.

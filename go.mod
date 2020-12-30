@@ -1,4 +1,4 @@
-module hidevops.io/demo/greeter-server
+module solarmesh.io/solar-mock-app
 
 go 1.12
 
