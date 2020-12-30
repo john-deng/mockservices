@@ -163,11 +163,11 @@ func (c *Controller) Get(_ struct {
 			faultInjectionMessage := ""
 			if fiCode != 0 {
 				ctx.StatusCode(fiCode)
-				faultInjectionMessage += fmt.Sprintf(" with code: %d", fiCode)
+				faultInjectionMessage += fmt.Sprintf(" with code: %d,", fiCode)
 			}
 			if fiDelay != 0 {
-				time.Sleep(time.Duration(fiDelay))
-				faultInjectionMessage += fmt.Sprintf(" with delay: %d", fiDelay)
+				time.Sleep(time.Duration(fiDelay) * time.Millisecond)
+				faultInjectionMessage += fmt.Sprintf(" with delay: %d ms,", fiDelay)
 			}
 			response.Code = fiCode
 			response.Message = fmt.Sprintf("Fault Injection %v", faultInjectionMessage)
