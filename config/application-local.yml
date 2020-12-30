@@ -1,0 +1,16 @@
+# config file for testing
+
+server:
+  port: 8082
+
+logging:
+  level: info
+
+grpc:
+  server:
+    port: 7576
+
+jaeger:
+  config:
+    reporter:
+      localAgentHostPort: localhost:6831 # you should change to your own jaeger server if you wish to debug in your local machine

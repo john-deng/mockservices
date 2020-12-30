@@ -1,0 +1,36 @@
+# config file for testing
+# filename should be application.yml
+
+app:
+  project: hidevopsio
+  name: greeter-server
+  profiles:
+    include:
+    - logging
+    - locale
+    - grpc
+    - jaeger
+    - httpclient
+    - actuator
+
+logging:
+  level: info
+
+grpc:
+  server:
+    enabled: true
+    network: tcp
+    port: 7575
+
+# config file for testing
+
+jaeger:
+  config:
+    serviceName: ${app.name}
+    sampler:
+      type: const
+      param: 1
+    reporter:
+      logSpans: true
+      localAgentHostPort: jaeger-agent.istio-system:6831
+      bufferFlushInterval: 1000000
