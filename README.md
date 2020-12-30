@@ -82,51 +82,17 @@ The output will be as follows,
                 "keep-alive"
             ],
             "Uber-Trace-Id": [
-                "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1"
+                "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1"
             ],
             "User-Agent": [
                 "HTTPie/2.3.0"
             ]
         },
-        "MetaData": "",
+        "MetaData": " -> payment -> ",
         "SourceApp": "",
         "SourceAppVersion": "",
         "Upstream": [
-            {
-                "Code": 200,
-                "Data": {
-                    "App": "product",
-                    "Cluster": "cluster01",
-                    "Header": {
-                        "Accept": [
-                            "*/*"
-                        ],
-                        "Accept-Encoding": [
-                            "gzip, deflate"
-                        ],
-                        "Connection": [
-                            "close",
-                            "keep-alive"
-                        ],
-                        "Uber-Trace-Id": [
-                            "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1"
-                        ],
-                        "User-Agent": [
-                            "HTTPie/2.3.0"
-                        ]
-                    },
-                    "MetaData": " ---> product",
-                    "SourceApp": "payment",
-                    "SourceAppVersion": "v1",
-                    "Upstream": null,
-                    "Url": "localhost:8080/",
-                    "UserData": "baremetal",
-                    "Version": "v1"
-                },
-                "Message": "Success"
-            },
             {
                 "Code": 200,
                 "Data": {
@@ -144,15 +110,14 @@ The output will be as follows,
                             "keep-alive"
                         ],
                         "Uber-Trace-Id": [
-                            "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                            "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                            "7832a830dc423e62:20a4d4d663966f6c:69022b374b11be57:1"
+                            "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                            "60dd508736c414a:e7b99b1d734b0ad:7db2e51b4dee559:1"
                         ],
                         "User-Agent": [
                             "HTTPie/2.3.0"
                         ]
                     },
-                    "MetaData": "",
+                    "MetaData": " -> inventory -> ",
                     "SourceApp": "payment",
                     "SourceAppVersion": "v1",
                     "Upstream": [
@@ -173,15 +138,14 @@ The output will be as follows,
                                         "keep-alive"
                                     ],
                                     "Uber-Trace-Id": [
-                                        "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                                        "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                                        "7832a830dc423e62:20a4d4d663966f6c:69022b374b11be57:1"
+                                        "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                                        "60dd508736c414a:e7b99b1d734b0ad:7db2e51b4dee559:1"
                                     ],
                                     "User-Agent": [
                                         "HTTPie/2.3.0"
                                     ]
                                 },
-                                "MetaData": " ---> product",
+                                "MetaData": " -> product",
                                 "SourceApp": "inventory",
                                 "SourceAppVersion": "v1",
                                 "Upstream": null,
@@ -215,17 +179,16 @@ The output will be as follows,
                             "keep-alive"
                         ],
                         "Uber-Trace-Id": [
-                            "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                            "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                            "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
-                            "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1",
-                            "7832a830dc423e62:1598edb7d7509ad9:5466c86a0ae50994:1"
+                            "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                            "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
+                            "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1",
+                            "60dd508736c414a:7afb61ab158b358b:1e61d36379e11215:1"
                         ],
                         "User-Agent": [
                             "HTTPie/2.3.0"
                         ]
                     },
-                    "MetaData": "",
+                    "MetaData": " -> order -> ",
                     "SourceApp": "payment",
                     "SourceAppVersion": "v1",
                     "Upstream": [
@@ -246,16 +209,15 @@ The output will be as follows,
                                         "keep-alive"
                                     ],
                                     "Uber-Trace-Id": [
-                                        "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                                        "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                                        "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
-                                        "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1"
+                                        "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                                        "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
+                                        "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1"
                                     ],
                                     "User-Agent": [
                                         "HTTPie/2.3.0"
                                     ]
                                 },
-                                "MetaData": " ---> product",
+                                "MetaData": " -> product",
                                 "SourceApp": "order",
                                 "SourceAppVersion": "v2",
                                 "Upstream": null,
@@ -282,18 +244,17 @@ The output will be as follows,
                                         "keep-alive"
                                     ],
                                     "Uber-Trace-Id": [
-                                        "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                                        "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                                        "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
-                                        "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1",
-                                        "7832a830dc423e62:1598edb7d7509ad9:5466c86a0ae50994:1",
-                                        "7832a830dc423e62:29a3ea19c0aae8f9:231cb0d181401056:1"
+                                        "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                                        "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
+                                        "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1",
+                                        "60dd508736c414a:7afb61ab158b358b:1e61d36379e11215:1",
+                                        "60dd508736c414a:7115aa258de5e54:efaca992213cfd5:1"
                                     ],
                                     "User-Agent": [
                                         "HTTPie/2.3.0"
                                     ]
                                 },
-                                "MetaData": "",
+                                "MetaData": " -> inventory -> ",
                                 "SourceApp": "order",
                                 "SourceAppVersion": "v2",
                                 "Upstream": [
@@ -314,18 +275,17 @@ The output will be as follows,
                                                     "keep-alive"
                                                 ],
                                                 "Uber-Trace-Id": [
-                                                    "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
-                                                    "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
-                                                    "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
-                                                    "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1",
-                                                    "7832a830dc423e62:1598edb7d7509ad9:5466c86a0ae50994:1",
-                                                    "7832a830dc423e62:29a3ea19c0aae8f9:231cb0d181401056:1"
+                                                    "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
+                                                    "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
+                                                    "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1",
+                                                    "60dd508736c414a:7afb61ab158b358b:1e61d36379e11215:1",
+                                                    "60dd508736c414a:7115aa258de5e54:efaca992213cfd5:1"
                                                 ],
                                                 "User-Agent": [
                                                     "HTTPie/2.3.0"
                                                 ]
                                             },
-                                            "MetaData": " ---> product",
+                                            "MetaData": " -> product",
                                             "SourceApp": "inventory",
                                             "SourceAppVersion": "v1",
                                             "Upstream": null,
@@ -356,5 +316,6 @@ The output will be as follows,
     },
     "Message": "Success"
 }
+
 
 ```
