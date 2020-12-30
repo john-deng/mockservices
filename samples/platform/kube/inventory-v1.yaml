@@ -1,52 +1,54 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: helloworld
+  name: inventory
   labels:
-    app: helloworld
+    app: inventory
 spec:
   ports:
     - port: 8080
       name: http
       targetPort: 8080
   selector:
-    app: helloworld
-  type: ClusterIP
+    app: inventory
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: helloworld-v1
+  name: inventory-v1
   labels:
-    app: helloworld
+    app: inventory
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: helloworld
+      app: inventory
       version: v1
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "true"
       labels:
-        app: helloworld
+        app: inventory
         version: v1
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-        - name: helloworld
+        - name: inventory
           image: solarmesh/solar-mock-app:latest
           imagePullPolicy: Always # IfNotPresent
           env:
             - name: APP_NAME
-              value: helloworld
+              value: inventory
             - name: APP_VERSION
               value: v1
             - name: CLUSTER_NAME
               value: cluster01
             - name: USER_DATA
-              value: Your customized user data
+              value: Inventory v1
+            - name: UPSTREAM_URLS
+              value: http://product:8080/,
           ports:
             - containerPort: 8080  
