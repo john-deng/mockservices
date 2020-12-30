@@ -107,6 +107,7 @@ func (c *Controller) Get(_ struct {
 	if urlLens == 0 || urlLens != 0 && upstreamUrls[0] == "${upstream.urls}" {
 		response.Data.MetaData = " -> " + c.AppName
 	} else {
+		response.Data.MetaData = " -> " + c.AppName + " -> "
 		for _, upstreamUrl := range upstreamUrls {
 			if upstreamUrl != "" {
 				upstreamResponse := new(GetResponse)
