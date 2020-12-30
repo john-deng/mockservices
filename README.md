@@ -9,7 +9,7 @@ As for the Service Mesh testing, sometimes we want to do fault injection to the 
 | fi-app | The app name | product  |
 | fi-ver | The app version, it is optional   |   v1 |
 | fi-code | Response code |    503 |
-| fi-delay | Response with delay |    2 |
+| fi-delay | Response with delay in millisecond |  2000 |
 
 Example 
 
