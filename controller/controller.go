@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	//"github.com/mileusna/useragent"
 	"github.com/opentracing/opentracing-go"
@@ -26,7 +27,7 @@ type Controller struct {
 
 	client httpclient.Client
 
-	UpstreamUrls []string `value:"${upstream.urls:,}"`
+	UpstreamUrls string `value:"${upstream.urls}"`
 	AppName      string   `value:"${app.name}"`
 	Version      string   `value:"${app.version}"`
 	ClusterName  string   `value:"${cluster.name:my-cluster}"`
@@ -90,10 +91,13 @@ func (c *Controller) Get(_ struct {
 	response.Data.UserData = c.UserData
 	response.Data.Header = ctx.Request().Header
 
-	if len(c.UpstreamUrls) == 0 {
-		response.Data.MetaData = "Hello Solarmesh"
+	log.Infof("Upstreams: %v", c.UpstreamUrls)
+	upstreamUrls := strings.SplitN(c.UpstreamUrls, ",", -1)
+	urlLens := len(upstreamUrls)
+	if urlLens == 0 || urlLens != 0 && upstreamUrls[0] == "${upstream.urls}" {
+		response.Data.MetaData = " ---> " + c.AppName
 	} else {
-		for _, upstreamUrl := range c.UpstreamUrls {
+		for _, upstreamUrl := range upstreamUrls {
 			if upstreamUrl != "" {
 				upstreamResponse := new(GetResponse)
 				resp, err := c.client.Get(upstreamUrl, ctx.Request().Header, func(req *http.Request) {
