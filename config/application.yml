@@ -2,8 +2,8 @@
 # filename should be application.yml
 
 app:
-  project: hidevopsio
-  name: greeter-server
+  project: solarmesh
+  name: solar-demo-app
   profiles:
     include:
     - logging
