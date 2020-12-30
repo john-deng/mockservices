@@ -27,7 +27,8 @@ type Controller struct {
 
 	client httpclient.Client
 
-	UpstreamUrls string `value:"${upstream.urls}"`
+	UpstreamUrls string   `value:"${upstream.urls}"`
+	Upstreams    []string `value:"${upstream.urls}"`
 	AppName      string   `value:"${app.name}"`
 	Version      string   `value:"${app.version}"`
 	ClusterName  string   `value:"${cluster.name:my-cluster}"`
@@ -91,8 +92,17 @@ func (c *Controller) Get(_ struct {
 	response.Data.UserData = c.UserData
 	response.Data.Header = ctx.Request().Header
 
-	log.Infof("Upstreams: %v", c.UpstreamUrls)
+	log.Infof("Upstreams: %v", c.Upstreams)
+	log.Infof("UpstreamUrls: %v", c.UpstreamUrls)
+
 	upstreamUrls := strings.SplitN(c.UpstreamUrls, ",", -1)
+	log.Debugf("len of urls: %v", len(c.UpstreamUrls))
+
+	// TODO: it is a patch, to be fixed
+	if c.UpstreamUrls == "" && len(c.Upstreams) != 0 {
+		upstreamUrls = append(upstreamUrls, c.Upstreams...)
+	}
+
 	urlLens := len(upstreamUrls)
 	if urlLens == 0 || urlLens != 0 && upstreamUrls[0] == "${upstream.urls}" {
 		response.Data.MetaData = " ---> " + c.AppName

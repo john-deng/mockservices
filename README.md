@@ -1,6 +1,24 @@
 # solar-mock-app
 
-solar-mock-app is an all in one app that build for testing Service Mesh, the key feature of this app is that you can deploy as many apps as possible with just a single binary file or docker image.
+solar-mock-app is an all in one app that build for testing Microservices on BareMetal, Docker, Kubernetes, or Service Mesh, the key features of this app is that you can deploy as many apps as possible with just a single binary file or docker image, then you can get hundreds or thousands microservices for testing. You can specify any to any HTTP request. e.g. starting two apps named order and product, sending HTTP requests from order, you will get a mock response. 
+
+As for the Service Mesh testing, sometimes we want to do fault injection to the app which response the real error code, all you have to do is set specific headers, you will get the result.
+
+| Header   |      Description      |  Example |
+|----------|:-------------|:------|
+| fi-svc | The app name | product  |
+| fi-ver | The app version, it is optional   |   v1 |
+| fi-code | Response code |    503 |
+
+Example 
+
+Using httpie to send the request to the mock app
+
+```bash
+
+http http://localhost:8083 fi-svc:product fi-ver:v1 fi-code:503 
+
+```
 
 ## Getting started
 
@@ -20,23 +38,10 @@ go build
 
 After the app is built, you can run it directly
 
-### 1. Run the binary file.
+### 1. Run the binary file on bare metal.
 ```bash
 
-# Run as product v1
-./solar-mock-app --app.name=product --app.version=v1 --cluster.name=cluster01 --user.data=demo --server.port=8080 
-
-
-# Run as inventory v1
-./solar-mock-app --app.name=inventory --app.version=v1 --cluster.name=cluster02 --user.data=demo --server.port=8081 --upstream.urls=http://localhost:8080/,
-
-
-# Run as payment v2
-./solar-mock-app --app.name=payment --app.version=v2 --cluster.name=cluster02 --user.data=demo --server.port=8082 --upstream.urls=http://localhost:8080/,http://localhost:8081/
-
-
-# Run as order v1
-./solar-mock-app --app.name=order --app.version=v1 --cluster.name=cluster02 --user.data=demo --server.port=8083 --upstream.urls=http://localhost:8080/,http://localhost:8081/,http://localhost:8082/
+samples/platform/baremetal/run.sh
 
 ```
 
@@ -45,51 +50,311 @@ After the app is built, you can run it directly
 
 ```bash
 
-docker network create solarmesh 
+samples/platform/baremetal/run.sh
 
-# Run as product v1
-docker run -it -d \
-  --name=product \
-  --net=solarmesh \
-  -p 8080:8080 \
-  -e APP_NAME=product \
-  -e APP_VERSION=v1 \
-  -e CLUSTER_NAME=cluster01 \
-  solarmesh/solar-mock-app:latest
+```
 
 
-# Run as inventory v1
-docker run -it -d \
-  --name=inventory \
-  --net=solarmesh \
-  -p 8081:8080 \
-  -e APP_NAME=inventory \
-  -e APP_VERSION=v1 \
-  -e CLUSTER_NAME=cluster01 \
-  -e UPSTREAM_URLS='http://product:8080/,' \
-  solarmesh/solar-mock-app:latest
+### Test it
 
-# Run as payment v2
-docker run -it -d \
-  --name=payment \
-  --net=solarmesh \
-  -p 8082:8080 \
-  -e APP_NAME=payment \
-  -e APP_VERSION=v2 \
-  -e CLUSTER_NAME=cluster01 \
-  -e UPSTREAM_URLS='http://product:8080/,http://product:8080/,' \
-  solarmesh/solar-mock-app:latest
+using httpie or curl to see the response of these mock apps
 
+```bash
+http http://localhost:8083
+```
 
-# Run as order v1
-docker run -it -d \
-  --name=order -p 8083:8080 \
-  --net=solarmesh \
-  -e APP_NAME=order \
-  -e APP_VERSION=v1 \
-  -e CLUSTER_NAME=cluster01 \
-  -e UPSTREAM_URLS='http://product:8080/,http://product:8080/,http://payment:8080/,' \
-  -e LOGGING_LEVEL=debug \
-  solarmesh/solar-mock-app:latest
+The output will be as follows,
+
+```json
+{
+    "Code": 200,
+    "Data": {
+        "App": "payment",
+        "Cluster": "cluster02",
+        "Header": {
+            "Accept": [
+                "*/*"
+            ],
+            "Accept-Encoding": [
+                "gzip, deflate"
+            ],
+            "Connection": [
+                "keep-alive"
+            ],
+            "Uber-Trace-Id": [
+                "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1"
+            ],
+            "User-Agent": [
+                "HTTPie/2.3.0"
+            ]
+        },
+        "MetaData": "",
+        "SourceApp": "",
+        "SourceAppVersion": "",
+        "Upstream": [
+            {
+                "Code": 200,
+                "Data": {
+                    "App": "product",
+                    "Cluster": "cluster01",
+                    "Header": {
+                        "Accept": [
+                            "*/*"
+                        ],
+                        "Accept-Encoding": [
+                            "gzip, deflate"
+                        ],
+                        "Connection": [
+                            "close",
+                            "keep-alive"
+                        ],
+                        "Uber-Trace-Id": [
+                            "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1"
+                        ],
+                        "User-Agent": [
+                            "HTTPie/2.3.0"
+                        ]
+                    },
+                    "MetaData": " ---> product",
+                    "SourceApp": "payment",
+                    "SourceAppVersion": "v1",
+                    "Upstream": null,
+                    "Url": "localhost:8080/",
+                    "UserData": "baremetal",
+                    "Version": "v1"
+                },
+                "Message": "Success"
+            },
+            {
+                "Code": 200,
+                "Data": {
+                    "App": "inventory",
+                    "Cluster": "cluster02",
+                    "Header": {
+                        "Accept": [
+                            "*/*"
+                        ],
+                        "Accept-Encoding": [
+                            "gzip, deflate"
+                        ],
+                        "Connection": [
+                            "close",
+                            "keep-alive"
+                        ],
+                        "Uber-Trace-Id": [
+                            "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                            "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                            "7832a830dc423e62:20a4d4d663966f6c:69022b374b11be57:1"
+                        ],
+                        "User-Agent": [
+                            "HTTPie/2.3.0"
+                        ]
+                    },
+                    "MetaData": "",
+                    "SourceApp": "payment",
+                    "SourceAppVersion": "v1",
+                    "Upstream": [
+                        {
+                            "Code": 200,
+                            "Data": {
+                                "App": "product",
+                                "Cluster": "cluster01",
+                                "Header": {
+                                    "Accept": [
+                                        "*/*"
+                                    ],
+                                    "Accept-Encoding": [
+                                        "gzip, deflate"
+                                    ],
+                                    "Connection": [
+                                        "close",
+                                        "keep-alive"
+                                    ],
+                                    "Uber-Trace-Id": [
+                                        "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                                        "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                                        "7832a830dc423e62:20a4d4d663966f6c:69022b374b11be57:1"
+                                    ],
+                                    "User-Agent": [
+                                        "HTTPie/2.3.0"
+                                    ]
+                                },
+                                "MetaData": " ---> product",
+                                "SourceApp": "inventory",
+                                "SourceAppVersion": "v1",
+                                "Upstream": null,
+                                "Url": "localhost:8080/",
+                                "UserData": "baremetal",
+                                "Version": "v1"
+                            },
+                            "Message": "Success"
+                        }
+                    ],
+                    "Url": "localhost:8081/",
+                    "UserData": "demo",
+                    "Version": "v1"
+                },
+                "Message": "Success"
+            },
+            {
+                "Code": 200,
+                "Data": {
+                    "App": "order",
+                    "Cluster": "cluster02",
+                    "Header": {
+                        "Accept": [
+                            "*/*"
+                        ],
+                        "Accept-Encoding": [
+                            "gzip, deflate"
+                        ],
+                        "Connection": [
+                            "close",
+                            "keep-alive"
+                        ],
+                        "Uber-Trace-Id": [
+                            "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                            "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                            "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
+                            "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1",
+                            "7832a830dc423e62:1598edb7d7509ad9:5466c86a0ae50994:1"
+                        ],
+                        "User-Agent": [
+                            "HTTPie/2.3.0"
+                        ]
+                    },
+                    "MetaData": "",
+                    "SourceApp": "payment",
+                    "SourceAppVersion": "v1",
+                    "Upstream": [
+                        {
+                            "Code": 200,
+                            "Data": {
+                                "App": "product",
+                                "Cluster": "cluster01",
+                                "Header": {
+                                    "Accept": [
+                                        "*/*"
+                                    ],
+                                    "Accept-Encoding": [
+                                        "gzip, deflate"
+                                    ],
+                                    "Connection": [
+                                        "close",
+                                        "keep-alive"
+                                    ],
+                                    "Uber-Trace-Id": [
+                                        "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                                        "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                                        "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
+                                        "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1"
+                                    ],
+                                    "User-Agent": [
+                                        "HTTPie/2.3.0"
+                                    ]
+                                },
+                                "MetaData": " ---> product",
+                                "SourceApp": "order",
+                                "SourceAppVersion": "v2",
+                                "Upstream": null,
+                                "Url": "localhost:8080/",
+                                "UserData": "baremetal",
+                                "Version": "v1"
+                            },
+                            "Message": "Success"
+                        },
+                        {
+                            "Code": 200,
+                            "Data": {
+                                "App": "inventory",
+                                "Cluster": "cluster02",
+                                "Header": {
+                                    "Accept": [
+                                        "*/*"
+                                    ],
+                                    "Accept-Encoding": [
+                                        "gzip, deflate"
+                                    ],
+                                    "Connection": [
+                                        "close",
+                                        "keep-alive"
+                                    ],
+                                    "Uber-Trace-Id": [
+                                        "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                                        "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                                        "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
+                                        "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1",
+                                        "7832a830dc423e62:1598edb7d7509ad9:5466c86a0ae50994:1",
+                                        "7832a830dc423e62:29a3ea19c0aae8f9:231cb0d181401056:1"
+                                    ],
+                                    "User-Agent": [
+                                        "HTTPie/2.3.0"
+                                    ]
+                                },
+                                "MetaData": "",
+                                "SourceApp": "order",
+                                "SourceAppVersion": "v2",
+                                "Upstream": [
+                                    {
+                                        "Code": 200,
+                                        "Data": {
+                                            "App": "product",
+                                            "Cluster": "cluster01",
+                                            "Header": {
+                                                "Accept": [
+                                                    "*/*"
+                                                ],
+                                                "Accept-Encoding": [
+                                                    "gzip, deflate"
+                                                ],
+                                                "Connection": [
+                                                    "close",
+                                                    "keep-alive"
+                                                ],
+                                                "Uber-Trace-Id": [
+                                                    "7832a830dc423e62:738ea6556907a2c:7832a830dc423e62:1",
+                                                    "7832a830dc423e62:4f28a9f568089f9f:7832a830dc423e62:1",
+                                                    "7832a830dc423e62:6eca6127a8f943b9:7832a830dc423e62:1",
+                                                    "7832a830dc423e62:3cb4f24005d28811:5466c86a0ae50994:1",
+                                                    "7832a830dc423e62:1598edb7d7509ad9:5466c86a0ae50994:1",
+                                                    "7832a830dc423e62:29a3ea19c0aae8f9:231cb0d181401056:1"
+                                                ],
+                                                "User-Agent": [
+                                                    "HTTPie/2.3.0"
+                                                ]
+                                            },
+                                            "MetaData": " ---> product",
+                                            "SourceApp": "inventory",
+                                            "SourceAppVersion": "v1",
+                                            "Upstream": null,
+                                            "Url": "localhost:8080/",
+                                            "UserData": "baremetal",
+                                            "Version": "v1"
+                                        },
+                                        "Message": "Success"
+                                    }
+                                ],
+                                "Url": "localhost:8081/",
+                                "UserData": "demo",
+                                "Version": "v1"
+                            },
+                            "Message": "Success"
+                        }
+                    ],
+                    "Url": "localhost:8082/",
+                    "UserData": "demo",
+                    "Version": "v2"
+                },
+                "Message": "Success"
+            }
+        ],
+        "Url": "localhost:8083/",
+        "UserData": "demo",
+        "Version": "v1"
+    },
+    "Message": "Success"
+}
 
 ```
