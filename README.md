@@ -16,9 +16,13 @@ Using httpie to send the request to the mock app
 
 ```bash
 
-http http://localhost:8083 fi-svc:product fi-ver:v1 fi-code:503 
+http http://localhost:8083 fi-svc:product fi-code:503 
 
 ```
+
+If you have Solarmesh installed, you may see the service topology as below
+
+![](samples/platform/kube/topo.jpg)
 
 ## Getting started
 
@@ -38,14 +42,14 @@ go build
 
 After the app is built, you can run it directly
 
-### 1. Run the binary file on bare metal.
+### 1. Run mock apps the binary file on bare metal.
 ```bash
 
 samples/platform/baremetal/run.sh
 
 ```
 
-### Run with Docker image
+### Run mock apps on Docker
 
 
 ```bash
@@ -54,13 +58,23 @@ samples/platform/baremetal/run.sh
 
 ```
 
+### Run mock apps on Kubernetes
+
+Assume that you have Kubernetes installed, then you may just apply the yaml files of sample mock apps
+
+```bash
+kubectl create namespace solar-mock-shop
+kubectl -n solar-mock-shop apply samples/platform/kube
+```
 
 ### Test it
 
 using httpie or curl to see the response of these mock apps
 
+if solar-mock-app is deployed on Kubernetes, you can use NodePort or port forward frontend-api to localhost, then sending request to http://localhost:8083
+
 ```bash
-http http://localhost:8083
+http http://localhost:8083 fi-svc:product fi-code:503 
 ```
 
 The output will be as follows,
