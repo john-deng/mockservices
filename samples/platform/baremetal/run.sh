@@ -30,7 +30,8 @@ if [[ "$1" != "cleanup" ]]; then
     --cluster.name=cluster02 \
     --user.data=demo \
     --server.port=8081 \
-    --upstream.urls='http://localhost:8080/,' &
+    --grpc.server.port=7576 \
+    --upstream.urls='grpc://localhost:7575,' &
 
 
   # Run as order v2
@@ -40,7 +41,8 @@ if [[ "$1" != "cleanup" ]]; then
     --cluster.name=cluster02 \
     --user.data=demo \
     --server.port=8082 \
-    --upstream.urls='http://localhost:8080/,http://localhost:8081/' &
+    --grpc.server.port=7577 \
+    --upstream.urls='grpc://localhost:7575,grpc://localhost:7576' &
 
 
   # Run as payment v1
@@ -50,6 +52,7 @@ if [[ "$1" != "cleanup" ]]; then
     --cluster.name=cluster02 \
     --user.data=demo \
     --server.port=8083 \
+    --grpc.server.port=7578 \
     --upstream.urls='http://localhost:8081/,http://localhost:8082/' &
 
 fi

@@ -9,7 +9,7 @@ As for the Service Mesh testing, sometimes we want to do fault injection to the 
 | fi-app | The app name | product  |
 | fi-ver | The app version, it is optional   |   v1 |
 | fi-code | Response code |    503 |
-| fi-delay | Response with delay in millisecond |  2000 |
+| fi-delay | Response with delay in millisecond |  1000 |
 
 Example 
 
@@ -41,27 +41,27 @@ go build
 
 ```
 
-After the app is built, you can run it directly
+After the mockservices is built, you can run it directly
 
-### 1. Run mock apps the binary file on bare metal.
+### 1. Run mockservices the binary file on bare metal.
 ```bash
 
 samples/platform/baremetal/run.sh
 
 ```
 
-### Run mock apps on Docker
+### Run mockservices on Docker
 
 
 ```bash
 
-samples/platform/baremetal/run.sh
+samples/platform/docker/run.sh
 
 ```
 
-### Run mock apps on Kubernetes
+### Run mockservices on Kubernetes
 
-Assume that you have Kubernetes installed, then you may just apply the yaml files of sample mock apps
+Assume that you have Kubernetes installed, then you may just apply the yaml files of sample mockservices
 
 ```bash
 kubectl --context cluster01 create namespace solar-mock-shop
@@ -70,267 +70,134 @@ kubectl --context cluster01 -n solar-mock-shop apply samples/platform/kube/clust
 
 ### Test it
 
-using httpie or curl to see the response of these mock apps
+Once Mockservices is built up and running, we can use httpie or curl to see the response of these mock services
 
-if mockservices is deployed on Kubernetes, you can use NodePort or port forward frontend-api to localhost, then sending request to http://localhost:8083
+Please note that if mockservices is deployed on Kubernetes, you can use NodePort or port forward frontend-api to localhost, or use ingress to expose it.
+
+For the purpose of demonstrating, we use docker to run mockservices and sending request to http://localhost:8083
 
 ```bash
-http http://localhost:8083 fi-app:product fi-code:503 
+http http://localhost:8083 fi-app:inventory fi-code:503 
 ```
 
 The output will be as follows,
 
 ```json
 {
-    "Code": 200,
-    "Data": {
-        "App": "payment",
-        "Cluster": "cluster02",
-        "Header": {
-            "Accept": [
-                "*/*"
-            ],
-            "Accept-Encoding": [
-                "gzip, deflate"
-            ],
-            "Connection": [
-                "keep-alive"
-            ],
-            "Uber-Trace-Id": [
-                "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1"
-            ],
-            "User-Agent": [
-                "HTTPie/2.3.0"
-            ]
-        },
-        "MetaData": " -> payment -> ",
-        "SourceApp": "",
-        "SourceAppVersion": "",
-        "Upstream": [
+    "code": 200,
+    "data": {
+        "app": "order",
+        "cluster": "cluster01",
+        "meta_data": " -> order -> ",
+        "protocol": "HTTP",
+        "source_app": "",
+        "source_app_version": "",
+        "upstream": [
             {
-                "Code": 200,
-                "Data": {
-                    "App": "inventory",
-                    "Cluster": "cluster02",
-                    "Header": {
-                        "Accept": [
-                            "*/*"
-                        ],
-                        "Accept-Encoding": [
-                            "gzip, deflate"
-                        ],
-                        "Connection": [
-                            "close",
-                            "keep-alive"
-                        ],
-                        "Uber-Trace-Id": [
-                            "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                            "60dd508736c414a:e7b99b1d734b0ad:7db2e51b4dee559:1"
-                        ],
-                        "User-Agent": [
-                            "HTTPie/2.3.0"
-                        ]
-                    },
-                    "MetaData": " -> inventory -> ",
-                    "SourceApp": "payment",
-                    "SourceAppVersion": "v1",
-                    "Upstream": [
+                "code": 503,
+                "data": {
+                    "app": "inventory",
+                    "cluster": "cluster01",
+                    "meta_data": " -> inventory -> ",
+                    "protocol": "HTTP",
+                    "source_app": "order",
+                    "source_app_version": "v1",
+                    "upstream": [
                         {
-                            "Code": 200,
-                            "Data": {
-                                "App": "product",
-                                "Cluster": "cluster01",
-                                "Header": {
-                                    "Accept": [
-                                        "*/*"
-                                    ],
-                                    "Accept-Encoding": [
-                                        "gzip, deflate"
-                                    ],
-                                    "Connection": [
-                                        "close",
-                                        "keep-alive"
-                                    ],
-                                    "Uber-Trace-Id": [
-                                        "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                                        "60dd508736c414a:e7b99b1d734b0ad:7db2e51b4dee559:1"
-                                    ],
-                                    "User-Agent": [
-                                        "HTTPie/2.3.0"
-                                    ]
-                                },
-                                "MetaData": " -> product",
-                                "SourceApp": "inventory",
-                                "SourceAppVersion": "v1",
-                                "Upstream": null,
-                                "Url": "localhost:8080/",
-                                "UserData": "baremetal",
-                                "Version": "v1"
+                            "code": 200,
+                            "data": {
+                                "app": "product",
+                                "cluster": "cluster01",
+                                "meta_data": " -> product",
+                                "protocol": "GRPC",
+                                "source_app": "inventory",
+                                "source_app_version": "v1",
+                                "upstream": null,
+                                "url": "grpc://product:7575",
+                                "user_data": "solarmesh",
+                                "version": "v1"
                             },
-                            "Message": "Success"
+                            "message": "Success"
                         }
                     ],
-                    "Url": "localhost:8081/",
-                    "UserData": "demo",
-                    "Version": "v1"
+                    "url": "inventory:8080/",
+                    "user_data": "solarmesh",
+                    "version": "v1"
                 },
-                "Message": "Success"
+                "message": "Fault Injection with HTTP status code 503,"
             },
             {
-                "Code": 200,
-                "Data": {
-                    "App": "order",
-                    "Cluster": "cluster02",
-                    "Header": {
-                        "Accept": [
-                            "*/*"
-                        ],
-                        "Accept-Encoding": [
-                            "gzip, deflate"
-                        ],
-                        "Connection": [
-                            "close",
-                            "keep-alive"
-                        ],
-                        "Uber-Trace-Id": [
-                            "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                            "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
-                            "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1",
-                            "60dd508736c414a:7afb61ab158b358b:1e61d36379e11215:1"
-                        ],
-                        "User-Agent": [
-                            "HTTPie/2.3.0"
-                        ]
-                    },
-                    "MetaData": " -> order -> ",
-                    "SourceApp": "payment",
-                    "SourceAppVersion": "v1",
-                    "Upstream": [
+                "code": 200,
+                "data": {
+                    "app": "payment",
+                    "cluster": "cluster01",
+                    "meta_data": " -> payment -> ",
+                    "protocol": "HTTP",
+                    "source_app": "order",
+                    "source_app_version": "v1",
+                    "upstream": [
                         {
-                            "Code": 200,
-                            "Data": {
-                                "App": "product",
-                                "Cluster": "cluster01",
-                                "Header": {
-                                    "Accept": [
-                                        "*/*"
-                                    ],
-                                    "Accept-Encoding": [
-                                        "gzip, deflate"
-                                    ],
-                                    "Connection": [
-                                        "close",
-                                        "keep-alive"
-                                    ],
-                                    "Uber-Trace-Id": [
-                                        "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                                        "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
-                                        "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1"
-                                    ],
-                                    "User-Agent": [
-                                        "HTTPie/2.3.0"
-                                    ]
-                                },
-                                "MetaData": " -> product",
-                                "SourceApp": "order",
-                                "SourceAppVersion": "v2",
-                                "Upstream": null,
-                                "Url": "localhost:8080/",
-                                "UserData": "baremetal",
-                                "Version": "v1"
+                            "code": 200,
+                            "data": {
+                                "app": "product",
+                                "cluster": "cluster01",
+                                "meta_data": " -> product",
+                                "protocol": "GRPC",
+                                "source_app": "payment",
+                                "source_app_version": "v2",
+                                "upstream": null,
+                                "url": "grpc://product:7575",
+                                "user_data": "solarmesh",
+                                "version": "v1"
                             },
-                            "Message": "Success"
+                            "message": "Success"
                         },
                         {
-                            "Code": 200,
-                            "Data": {
-                                "App": "inventory",
-                                "Cluster": "cluster02",
-                                "Header": {
-                                    "Accept": [
-                                        "*/*"
-                                    ],
-                                    "Accept-Encoding": [
-                                        "gzip, deflate"
-                                    ],
-                                    "Connection": [
-                                        "close",
-                                        "keep-alive"
-                                    ],
-                                    "Uber-Trace-Id": [
-                                        "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                                        "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
-                                        "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1",
-                                        "60dd508736c414a:7afb61ab158b358b:1e61d36379e11215:1",
-                                        "60dd508736c414a:7115aa258de5e54:efaca992213cfd5:1"
-                                    ],
-                                    "User-Agent": [
-                                        "HTTPie/2.3.0"
-                                    ]
-                                },
-                                "MetaData": " -> inventory -> ",
-                                "SourceApp": "order",
-                                "SourceAppVersion": "v2",
-                                "Upstream": [
+                            "code": 503,
+                            "data": {
+                                "app": "inventory",
+                                "cluster": "cluster01",
+                                "meta_data": " -> inventory -> ",
+                                "protocol": "GRPC",
+                                "source_app": "payment",
+                                "source_app_version": "v2",
+                                "upstream": [
                                     {
-                                        "Code": 200,
-                                        "Data": {
-                                            "App": "product",
-                                            "Cluster": "cluster01",
-                                            "Header": {
-                                                "Accept": [
-                                                    "*/*"
-                                                ],
-                                                "Accept-Encoding": [
-                                                    "gzip, deflate"
-                                                ],
-                                                "Connection": [
-                                                    "close",
-                                                    "keep-alive"
-                                                ],
-                                                "Uber-Trace-Id": [
-                                                    "60dd508736c414a:684c72590f7e454d:60dd508736c414a:1",
-                                                    "60dd508736c414a:4e913b9d36f7ed3a:60dd508736c414a:1",
-                                                    "60dd508736c414a:659dbe59cfab6b68:1e61d36379e11215:1",
-                                                    "60dd508736c414a:7afb61ab158b358b:1e61d36379e11215:1",
-                                                    "60dd508736c414a:7115aa258de5e54:efaca992213cfd5:1"
-                                                ],
-                                                "User-Agent": [
-                                                    "HTTPie/2.3.0"
-                                                ]
-                                            },
-                                            "MetaData": " -> product",
-                                            "SourceApp": "inventory",
-                                            "SourceAppVersion": "v1",
-                                            "Upstream": null,
-                                            "Url": "localhost:8080/",
-                                            "UserData": "baremetal",
-                                            "Version": "v1"
+                                        "code": 200,
+                                        "data": {
+                                            "app": "product",
+                                            "cluster": "cluster01",
+                                            "meta_data": " -> product",
+                                            "protocol": "GRPC",
+                                            "source_app": "inventory",
+                                            "source_app_version": "v1",
+                                            "upstream": null,
+                                            "url": "grpc://product:7575",
+                                            "user_data": "solarmesh",
+                                            "version": "v1"
                                         },
-                                        "Message": "Success"
+                                        "message": "Success"
                                     }
                                 ],
-                                "Url": "localhost:8081/",
-                                "UserData": "demo",
-                                "Version": "v1"
+                                "url": "grpc://inventory:7575",
+                                "user_data": "solarmesh",
+                                "version": "v1"
                             },
-                            "Message": "Success"
+                            "message": "Fault Injection with HTTP status code 503,"
                         }
                     ],
-                    "Url": "localhost:8082/",
-                    "UserData": "demo",
-                    "Version": "v2"
+                    "url": "payment:8080/",
+                    "user_data": "solarmesh",
+                    "version": "v2"
                 },
-                "Message": "Success"
+                "message": "Success"
             }
         ],
-        "Url": "localhost:8083/",
-        "UserData": "demo",
-        "Version": "v1"
+        "url": "localhost:8083/",
+        "user_data": "solarmesh",
+        "version": "v1"
     },
-    "Message": "Success"
+    "message": "Success"
 }
-
 
 ```

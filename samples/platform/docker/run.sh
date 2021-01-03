@@ -22,6 +22,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=product \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
+    -e APP_PROFILES_ACTIVE=local \
     solarmesh/mockservices:latest
 fi
 clean_up_docker inventory
@@ -34,7 +35,8 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=inventory \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
-    -e UPSTREAM_URLS='http://product:8080/,' \
+    -e APP_PROFILES_ACTIVE=local \
+    -e UPSTREAM_URLS='grpc://product:7575,' \
     solarmesh/mockservices:latest
 fi
 clean_up_docker payment
@@ -47,7 +49,8 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=payment \
     -e APP_VERSION=v2 \
     -e CLUSTER_NAME=cluster01 \
-    -e UPSTREAM_URLS='http://product:8080/,http://inventory:8080/,' \
+    -e APP_PROFILES_ACTIVE=local \
+    -e UPSTREAM_URLS='grpc://product:7575,grpc://inventory:7575,' \
     solarmesh/mockservices:latest
 fi
 clean_up_docker order
@@ -59,6 +62,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=order \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
+    -e APP_PROFILES_ACTIVE=local \
     -e UPSTREAM_URLS='http://inventory:8080/,http://payment:8080/,' \
     -e LOGGING_LEVEL=debug \
     solarmesh/mockservices:latest
