@@ -26,6 +26,7 @@ import (
 	"hidevops.io/hiboot/pkg/starter/logging"
 	_ "solarmesh.io/mockservices/src/controller"
 	_ "solarmesh.io/mockservices/src/rpc/server"
+	_ "solarmesh.io/mockservices/src/tcp"
 )
 
 func main() {
