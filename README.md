@@ -1,6 +1,6 @@
-# solar-mock-app
+# Mockservices
 
-solar-mock-app is an all in one app that build for testing Microservices on BareMetal, Docker, Kubernetes, or Service Mesh, the key features of this app is that you can deploy as many apps as possible with just a single binary file or docker image, then you can get hundreds or thousands microservices for testing. You can specify any to any HTTP request. e.g. starting two apps named order and product, sending HTTP requests from order, you will get a mock response. 
+Mockservices is an all in one app that build for testing Microservices on BareMetal, Docker, Kubernetes, or Service Mesh, the key features of this app is that you can deploy as many apps as possible with just a single binary file or docker image, then you can get hundreds or thousands microservices for testing. You can specify any to any HTTP request. e.g. starting two apps named order and product, sending HTTP requests from order, you will get a mock response. 
 
 As for the Service Mesh testing, sometimes we want to do fault injection to the app which response the real error code, all you have to do is set specific headers, you will get the result.
 
@@ -33,10 +33,10 @@ Get the source code and build with Go tools
 
 ```bash
 # Clone the source code
-git clone https://github.com/solarmesh-io/solar-mock-app.git
+git clone https://github.com/solarmesh-io/mockservices.git
 
 # Build
-cd solar-mock-app
+cd mockservices
 go build
 
 ```
@@ -72,7 +72,7 @@ kubectl --context cluster01 -n solar-mock-shop apply samples/platform/kube/clust
 
 using httpie or curl to see the response of these mock apps
 
-if solar-mock-app is deployed on Kubernetes, you can use NodePort or port forward frontend-api to localhost, then sending request to http://localhost:8083
+if mockservices is deployed on Kubernetes, you can use NodePort or port forward frontend-api to localhost, then sending request to http://localhost:8083
 
 ```bash
 http http://localhost:8083 fi-app:product fi-code:503 

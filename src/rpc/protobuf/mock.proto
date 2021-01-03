@@ -1,0 +1,58 @@
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+option java_multiple_files = true;
+option java_package = "io.solarmesh.mockservices.mock";
+option java_outer_classname = "MockProto";
+option go_package = "solarmesh.io/mockservices/src/rpc/protobuf";
+// target package name
+package protobuf;
+
+// The mock service definition.
+service MockService {
+  // Sends a greeting
+  rpc Send (MockRequest) returns (MockResponse) {}
+}
+
+// The request message containing the user's name.
+message MockRequest {
+  string name = 1;
+  string downstream = 2;
+  string host = 3;
+}
+
+message MockData {
+  string protocol = 1;
+  string url = 2;
+  string app = 3;
+  string version = 4;
+  string sourceApp = 5;
+  string sourceAppVersion = 6;
+  string cluster = 7;
+  string userData = 8;
+  string metaData = 9;
+  repeated google.protobuf.Any header = 10;
+  repeated MockResponse upstream = 11;
+}
+
+// The response message containing the greetings
+message MockResponse {
+  int32 code = 1;
+  string message = 2;
+  MockData data = 3;
+}

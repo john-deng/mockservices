@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
-rm -f ./solar-mock-app
+rm -f ./mockservices
 
 
-if [[  $(ps aux | grep -c solar-mock-app) -gt 1 ]]; then
-  killall solar-mock-app
+if [[  $(ps aux | grep -c mockservices) -gt 1 ]]; then
+  killall mockservices
 fi
 
 if [[ "$1" != "cleanup" ]]; then
 
-  if [[ ! -f solar-mock-app ]]; then
+  if [[ ! -f mockservices ]]; then
     echo "Assume that you have Go installed, run go build"
     go build
   fi
 
   # Run as product v1
-  nohup ./solar-mock-app \
+  nohup ./mockservices \
     --app.name=product \
     --app.version=v1 \
     --cluster.name=cluster01 \
@@ -24,7 +24,7 @@ if [[ "$1" != "cleanup" ]]; then
 
 
   # Run as inventory v1
-  nohup ./solar-mock-app \
+  nohup ./mockservices \
     --app.name=inventory \
     --app.version=v1 \
     --cluster.name=cluster02 \
@@ -34,7 +34,7 @@ if [[ "$1" != "cleanup" ]]; then
 
 
   # Run as order v2
-  nohup ./solar-mock-app \
+  nohup ./mockservices \
     --app.name=order \
     --app.version=v2 \
     --cluster.name=cluster02 \
@@ -44,7 +44,7 @@ if [[ "$1" != "cleanup" ]]; then
 
 
   # Run as payment v1
-  nohup ./solar-mock-app \
+  nohup ./mockservices \
     --app.name=payment \
     --app.version=v1 \
     --cluster.name=cluster02 \

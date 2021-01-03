@@ -37,7 +37,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: reviews
-          image: solarmesh/solar-mock-app:latest
+          image: solarmesh/mockservices:latest
           imagePullPolicy: Always # IfNotPresent
           env:
             - name: APP_NAME

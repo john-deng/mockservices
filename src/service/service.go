@@ -1,33 +1,33 @@
-package controller
+package service
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	//"github.com/mileusna/useragent"
 	"github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
 	"golang.org/x/net/context"
 	"hidevops.io/hiboot/pkg/app"
 	webctx "hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
 	"hidevops.io/hiboot/pkg/log"
 	"hidevops.io/hiboot/pkg/starter/httpclient"
 	"hidevops.io/hiboot/pkg/starter/jaeger"
+	"solarmesh.io/mockservices/src/model"
+	"solarmesh.io/mockservices/src/rpc/client"
 )
 
-// controller
-type Controller struct {
-	// embedded at.RestController
-	at.RestController
-	at.RequestMapping `value:"/"`
+// MockService
+type MockService struct {
 
 	client httpclient.Client
+
+	mockGRpcClientService *client.MockGRpcClientService
 
 	UpstreamUrls string   `value:"${upstream.urls}"`
 	Upstreams    []string `value:"${upstream.urls}"`
@@ -37,42 +37,19 @@ type Controller struct {
 	UserData     string   `value:"${user.data:solarmesh}"`
 }
 
-// Init inject helloServiceClient
-func newController(httpClient httpclient.Client) *Controller {
-	return &Controller{
+func newMockService(httpClient httpclient.Client, mockGRpcClientService *client.MockGRpcClientService) *MockService {
+	return &MockService{
 		client: httpClient,
+		mockGRpcClientService: mockGRpcClientService,
 	}
 }
 
 func init() {
-	app.Register(newController)
+	app.Register(newMockService)
 }
 
-type ResponseData struct {
-	Url              string
-	App              string
-	Version          string
-	SourceApp        string
-	SourceAppVersion string
-	Cluster          string
-	UserData         string
-	MetaData         string
-	//UserAgent ua.UserAgent
-	Header   http.Header
-	Upstream []*GetResponse
-}
-
-type GetResponse struct {
-	Code    int
-	Message string
-	Data    ResponseData
-}
-
-// GET /
-func (c *Controller) Get(_ struct {
-	at.GetMapping `value:"/"`
-}, span *jaeger.ChildSpan, ctx webctx.Context) (response *GetResponse) {
-	response = new(GetResponse)
+func (c *MockService) SendRequest(span *jaeger.ChildSpan, ctx webctx.Context, response *model.GetResponse) *model.GetResponse {
+	response = new(model.GetResponse)
 
 	if span.Span != nil {
 		defer span.Finish()
@@ -89,12 +66,15 @@ func (c *Controller) Get(_ struct {
 	fiCluster := ctx.GetHeader("fi-cluster")
 	fiCode, _ := strconv.Atoi(ctx.GetHeader("fi-code"))
 	fiDelay, _ := strconv.Atoi(ctx.GetHeader("fi-delay"))
+	response.Data.Protocol = "HTTP"
 	response.Data.Url = ctx.Host() + ctx.Path()
 	response.Data.App = c.AppName
 	response.Data.Version = c.Version
 	response.Data.Cluster = c.ClusterName
 	response.Data.UserData = c.UserData
-	response.Data.Header = ctx.Request().Header
+
+	header := ctx.Request().Header
+	response.Data.Header = header
 
 	log.Infof("Upstreams: %v", c.Upstreams)
 	log.Infof("UpstreamUrls: %v", c.UpstreamUrls)
@@ -114,22 +94,45 @@ func (c *Controller) Get(_ struct {
 		response.Data.MetaData = " -> " + c.AppName + " -> "
 		for _, upstreamUrl := range upstreamUrls {
 			if upstreamUrl != "" {
-				upstreamResponse := new(GetResponse)
-				resp, err := c.client.Get(upstreamUrl, ctx.Request().Header, func(req *http.Request) {
-					if span.Span != nil {
-						newSpan = span.Inject(context.Background(), "GET", upstreamUrl, req)
-					}
-				})
+				upstreamResponse := new(model.GetResponse)
+				upstreamResponse.Data.Url = upstreamUrl
 				var newResp string
+
+				u, err := url.Parse(upstreamUrl)
+				if err != nil {
+					log.Warnf("Bad URL format: %v", upstreamUrl)
+					continue
+				}
+				var resp *http.Response
+
+				switch u.Scheme {
+				case "http", "https":
+					resp, err = c.client.Get(upstreamUrl, header, func(req *http.Request) {
+						if span.Span != nil {
+							newSpan = span.Inject(context.Background(), "GET", upstreamUrl, req)
+						}
+					})
+					if err == nil {
+						byteResp, _ := ioutil.ReadAll(resp.Body)
+						_ = json.Unmarshal(byteResp, upstreamResponse)
+					}
+				case "grpc":
+					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+					mockResponse, err := c.mockGRpcClientService.Send(ctx, u.Host, header)
+					if err == nil {
+						b, e := json.Marshal(mockResponse)
+						if e == nil {
+							e = json.Unmarshal(b, upstreamResponse)
+						}
+					}
+					cancel()
+				}
+
 				if err != nil {
 					errMsg := err.Error()
-					upstreamResponse.Data.Url = upstreamUrl
 					upstreamResponse.Code = 500
 					upstreamResponse.Message = errMsg
 					log.Error(errMsg)
-				} else {
-					byteResp, _ := ioutil.ReadAll(resp.Body)
-					_ = json.Unmarshal(byteResp, upstreamResponse)
 				}
 				upstreamResponse.Data.SourceApp = c.AppName
 				upstreamResponse.Data.SourceAppVersion = c.Version
@@ -149,17 +152,17 @@ func (c *Controller) Get(_ struct {
 	response.Message = "Success"
 	if fiApp == c.AppName {
 
-		hasFaultInjection := false
+		hasFaultInjection := true
 
-		if fiVer != "" && fiVer == c.Version {
-			hasFaultInjection = true
+		if fiVer != "" && fiVer != c.Version {
+			hasFaultInjection = false
 		}
 
-		if fiCluster != "" && fiCluster == c.ClusterName {
-			hasFaultInjection = true
+		if fiCluster != "" && fiCluster != c.ClusterName {
+			hasFaultInjection = false
 		}
 
-		if fiVer == "" || hasFaultInjection {
+		if hasFaultInjection {
 			faultInjectionMessage := ""
 			if fiCode != 0 {
 				ctx.StatusCode(fiCode)
@@ -169,8 +172,10 @@ func (c *Controller) Get(_ struct {
 				time.Sleep(time.Duration(fiDelay) * time.Millisecond)
 				faultInjectionMessage += fmt.Sprintf(" with delay: %d ms,", fiDelay)
 			}
-			response.Code = fiCode
-			response.Message = fmt.Sprintf("Fault Injection %v", faultInjectionMessage)
+			if fiCode != 0 {
+				response.Code = fiCode
+				response.Message = fmt.Sprintf("Fault Injection %v", faultInjectionMessage)
+			}
 		}
 	}
 
@@ -183,6 +188,5 @@ func (c *Controller) Get(_ struct {
 			olog.String("value", string(respStr)),
 		)
 	}
-
-	return
+	return response
 }
