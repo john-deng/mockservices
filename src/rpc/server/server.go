@@ -20,6 +20,9 @@
 package server
 
 import (
+	"encoding/json"
+	"net/http"
+
 	"golang.org/x/net/context"
 	ggrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -27,47 +30,46 @@ import (
 	"google.golang.org/grpc/status"
 	"hidevops.io/hiboot/pkg/log"
 	"hidevops.io/hiboot/pkg/starter/grpc"
+	"solarmesh.io/mockservices/src/model"
 	"solarmesh.io/mockservices/src/rpc/protobuf"
+	"solarmesh.io/mockservices/src/service"
 )
 
 // server is used to implement protobuf.GreeterServer.
 type MockGRpcServerService struct {
-
-	UpstreamUrls string   `value:"${upstream.urls}"`
-	Upstreams    []string `value:"${upstream.urls}"`
-	AppName      string   `value:"${app.name}"`
-	Version      string   `value:"${app.version}"`
-	ClusterName  string   `value:"${cluster.name:my-cluster}"`
-	UserData     string   `value:"${user.data:solarmesh}"`
-
-	//mockClientService *client.MockGRpcClientService
+	mockService *service.MockService
 }
 
-func newMockServiceServer() protobuf.MockServiceServer {
-	return &MockGRpcServerService{}
+func newMockServiceServer(mockService *service.MockService) protobuf.MockServiceServer {
+	return &MockGRpcServerService{mockService: mockService}
 }
+
+func init() {
+	// must: register grpc server
+	// please note that holaServiceServerImpl must implement protobuf.MockServiceServer, or it won't be registered.
+	grpc.Server(protobuf.RegisterMockServiceServer, newMockServiceServer)
+}
+
 
 // Send implementation
 func (s *MockGRpcServerService) Send(ctx context.Context, request *protobuf.MockRequest) (response *protobuf.MockResponse, err error) {
-	response = new(protobuf.MockResponse)
-
-	response.Message = "Success"
-	response.Code = 0
-	data := new(protobuf.MockData)
-	data.Protocol = "GRPC"
-	data.App = s.AppName
-	data.Version = s.Version
-	data.Cluster = s.ClusterName
-	data.UserData = s.UserData
-	log.Info("send...")
+	httpHeader := make(http.Header)
 	header, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		for k, v := range header {
 			log.Infof("> %v: %v", k, v)
+			httpHeader.Set(k, v[0])
 		}
 	}
-
-	response.Data = data
+	var resp *model.GetResponse
+	response = new(protobuf.MockResponse)
+	resp, err = s.mockService.SendRequest("GRPC", nil, httpHeader)
+	if err == nil {
+		b, e := json.Marshal(resp)
+		if e == nil {
+			e = json.Unmarshal(b, response)
+		}
+	}
 
 	// Anything linked to this variable will transmit response headers.
 	if err := ggrpc.SendHeader(ctx, header); err != nil {
@@ -75,10 +77,4 @@ func (s *MockGRpcServerService) Send(ctx context.Context, request *protobuf.Mock
 	}
 
 	return
-}
-
-func init() {
-	// must: register grpc server
-	// please note that holaServiceServerImpl must implement protobuf.MockServiceServer, or it won't be registered.
-	grpc.Server(protobuf.RegisterMockServiceServer, newMockServiceServer)
 }

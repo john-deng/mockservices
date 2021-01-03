@@ -14,8 +14,6 @@
 
 syntax = "proto3";
 
-import "google/protobuf/any.proto";
-
 option java_multiple_files = true;
 option java_package = "io.solarmesh.mockservices.mock";
 option java_outer_classname = "MockProto";
@@ -41,13 +39,12 @@ message MockData {
   string url = 2;
   string app = 3;
   string version = 4;
-  string sourceApp = 5;
-  string sourceAppVersion = 6;
+  string source_app = 5;
+  string source_app_version = 6;
   string cluster = 7;
-  string userData = 8;
-  string metaData = 9;
-  repeated google.protobuf.Any header = 10;
-  repeated MockResponse upstream = 11;
+  string user_data = 8;
+  string meta_data = 9;
+  repeated MockResponse upstream = 10;
 }
 
 // The response message containing the greetings

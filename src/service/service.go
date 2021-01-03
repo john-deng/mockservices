@@ -14,7 +14,6 @@ import (
 	olog "github.com/opentracing/opentracing-go/log"
 	"golang.org/x/net/context"
 	"hidevops.io/hiboot/pkg/app"
-	webctx "hidevops.io/hiboot/pkg/app/web/context"
 	"hidevops.io/hiboot/pkg/log"
 	"hidevops.io/hiboot/pkg/starter/httpclient"
 	"hidevops.io/hiboot/pkg/starter/jaeger"
@@ -48,10 +47,10 @@ func init() {
 	app.Register(newMockService)
 }
 
-func (c *MockService) SendRequest(span *jaeger.ChildSpan, ctx webctx.Context, response *model.GetResponse) *model.GetResponse {
+func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, header http.Header) (response *model.GetResponse, err error) {
 	response = new(model.GetResponse)
 
-	if span.Span != nil {
+	if span != nil && span.Span != nil {
 		defer span.Finish()
 		greeting := span.BaggageItem(c.AppName)
 		if greeting == "" {
@@ -61,31 +60,18 @@ func (c *MockService) SendRequest(span *jaeger.ChildSpan, ctx webctx.Context, re
 	var newSpan opentracing.Span
 
 	//response.Data.UserAgent = ua.Parse(ctx.GetHeader("User-Agent"))
-	fiApp := ctx.GetHeader("fi-app")
-	fiVer := ctx.GetHeader("fi-ver")
-	fiCluster := ctx.GetHeader("fi-cluster")
-	fiCode, _ := strconv.Atoi(ctx.GetHeader("fi-code"))
-	fiDelay, _ := strconv.Atoi(ctx.GetHeader("fi-delay"))
-	response.Data.Protocol = "HTTP"
-	response.Data.Url = ctx.Host() + ctx.Path()
+	fiApp := header.Get("fi-app")
+	fiVer := header.Get("fi-ver")
+	fiCluster := header.Get("fi-cluster")
+	fiCode, _ := strconv.Atoi(header.Get("fi-code"))
+	fiDelay, _ := strconv.Atoi(header.Get("fi-delay"))
+	response.Data.Protocol = protocol
 	response.Data.App = c.AppName
 	response.Data.Version = c.Version
 	response.Data.Cluster = c.ClusterName
 	response.Data.UserData = c.UserData
 
-	header := ctx.Request().Header
-	response.Data.Header = header
-
-	log.Infof("Upstreams: %v", c.Upstreams)
-	log.Infof("UpstreamUrls: %v", c.UpstreamUrls)
-
-	upstreamUrls := strings.SplitN(c.UpstreamUrls, ",", -1)
-	log.Debugf("len of urls: %v", len(c.UpstreamUrls))
-
-	// TODO: it is a patch, to be fixed
-	if c.UpstreamUrls == "" && len(c.Upstreams) != 0 {
-		upstreamUrls = append(upstreamUrls, c.Upstreams...)
-	}
+	upstreamUrls := c.parseUpstream()
 
 	urlLens := len(upstreamUrls)
 	if urlLens == 0 || urlLens != 0 && upstreamUrls[0] == "${upstream.urls}" {
@@ -164,17 +150,17 @@ func (c *MockService) SendRequest(span *jaeger.ChildSpan, ctx webctx.Context, re
 
 		if hasFaultInjection {
 			faultInjectionMessage := ""
-			if fiCode != 0 {
-				ctx.StatusCode(fiCode)
-				faultInjectionMessage += fmt.Sprintf(" with code: %d,", fiCode)
-			}
 			if fiDelay != 0 {
 				time.Sleep(time.Duration(fiDelay) * time.Millisecond)
-				faultInjectionMessage += fmt.Sprintf(" with delay: %d ms,", fiDelay)
+				faultInjectionMessage += fmt.Sprintf(" with delay %d ms,", fiDelay)
 			}
 			if fiCode != 0 {
 				response.Code = fiCode
-				response.Message = fmt.Sprintf("Fault Injection %v", faultInjectionMessage)
+				faultInjectionMessage += fmt.Sprintf(" with HTTP status code %d,", fiCode)
+			}
+
+			if fiCode != 0 || fiDelay != 0 {
+				response.Message = fmt.Sprintf("Fault Injection%v", faultInjectionMessage)
 			}
 		}
 	}
@@ -182,11 +168,25 @@ func (c *MockService) SendRequest(span *jaeger.ChildSpan, ctx webctx.Context, re
 	respStr, _ := json.Marshal(response)
 	log.Info(string(respStr))
 
-	if span.Span != nil {
+	if span != nil && span.Span != nil {
 		span.LogFields(
 			olog.String("event", c.AppName),
 			olog.String("value", string(respStr)),
 		)
 	}
-	return response
+	return
+}
+
+func (c *MockService) parseUpstream() []string {
+	log.Infof("Upstreams: %v", c.Upstreams)
+	log.Infof("UpstreamUrls: %v", c.UpstreamUrls)
+
+	upstreamUrls := strings.SplitN(c.UpstreamUrls, ",", -1)
+	log.Debugf("len of urls: %v", len(c.UpstreamUrls))
+
+	// TODO: it is a patch, to be fixed
+	if c.UpstreamUrls == "" && len(c.Upstreams) != 0 {
+		upstreamUrls = append(upstreamUrls, c.Upstreams...)
+	}
+	return upstreamUrls
 }

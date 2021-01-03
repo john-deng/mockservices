@@ -43,21 +43,18 @@ func init() {
 func (c *Controller) Get(_ struct {
 	at.GetMapping `value:"/"`
 }, span *jaeger.ChildSpan, ctx webctx.Context) (response *model.GetResponse) {
-	response = c.mockService.SendRequest(span, ctx, response)
+	var err error
+	response, err = c.mockService.SendRequest("HTTP", span, ctx.Request().Header)
+	c.response(err, response, ctx)
 	return
 }
 
-// GET /grpc
-func (c *Controller) GRpc(_ struct {
-	at.GetMapping `value:"/grpc"`
-}, span *jaeger.ChildSpan, ctx webctx.Context) (response *model.GetResponse) {
-	response = c.mockService.SendRequest(span, ctx, response)
-	return
-}
-
-// GET /tcp
-func (c *Controller) Tcp(_ struct {
-	at.GetMapping `value:"/tcp"`
-}, span *jaeger.ChildSpan, ctx webctx.Context) (response *model.GetResponse) {
-	return
+func (c *Controller) response(err error, response *model.GetResponse, ctx webctx.Context) {
+	if err == nil {
+		response.Data.Url = ctx.Host() + ctx.Path()
+		ctx.StatusCode(response.Code)
+		for k, v := range ctx.Request().Header {
+			ctx.ResponseWriter().Header().Set(k, v[0])
+		}
+	}
 }

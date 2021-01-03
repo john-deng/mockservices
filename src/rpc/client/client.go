@@ -69,8 +69,8 @@ func (s *MockGRpcClientService) Send(ctx context.Context, address string, header
 		for k, v := range header {
 			md[k] = v
 			log.Infof("> %v: %v", k, v)
+			ctx = metadata.AppendToOutgoingContext(ctx, k, v[0])
 		}
-		//ctx = metadata.NewOutgoingContext(ctx, md)
 
 		// Anything linked to this variable will fetch response headers.
 		var responseHeader metadata.MD
