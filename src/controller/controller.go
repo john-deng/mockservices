@@ -2,8 +2,8 @@ package controller
 
 import (
 	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/rpc/client"
 	"solarmesh.io/mockservices/src/service"
+	"solarmesh.io/mockservices/src/service/grpc/client"
 
 	"hidevops.io/hiboot/pkg/app"
 	webctx "hidevops.io/hiboot/pkg/app/web/context"

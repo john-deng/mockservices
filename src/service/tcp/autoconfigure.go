@@ -3,7 +3,7 @@ package tcp
 import (
 	"hidevops.io/hiboot/pkg/app"
 	"hidevops.io/hiboot/pkg/at"
-	"solarmesh.io/mockservices/src/tcp/server"
+	"solarmesh.io/mockservices/src/service/tcp/server"
 )
 
 var Profile = "tcp"

@@ -17,14 +17,14 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "io.solarmesh.mockservices.mock";
 option java_outer_classname = "MockProto";
-option go_package = "solarmesh.io/mockservices/src/rpc/protobuf";
+option go_package = "solarmesh.io/mockservices/src/grpc/protobuf";
 // target package name
 package protobuf;
 
 // The mock service definition.
 service MockService {
   // Sends a greeting
-  rpc Send (MockRequest) returns (MockResponse) {}
+  grpc Send (MockRequest) returns (MockResponse) {}
 }
 
 // The request message containing the user's name.

@@ -28,7 +28,7 @@ import (
 	"hidevops.io/hiboot/pkg/app"
 	"hidevops.io/hiboot/pkg/log"
 	grpc2 "hidevops.io/hiboot/pkg/starter/grpc"
-	"solarmesh.io/mockservices/src/rpc/protobuf"
+	"solarmesh.io/mockservices/src/service/grpc/protobuf"
 )
 
 // server is used to implement protobuf.GreeterServer.

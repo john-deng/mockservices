@@ -18,7 +18,8 @@ import (
 	"hidevops.io/hiboot/pkg/starter/httpclient"
 	"hidevops.io/hiboot/pkg/starter/jaeger"
 	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/rpc/client"
+	"solarmesh.io/mockservices/src/service/grpc/client"
+	"solarmesh.io/mockservices/src/service/grpc/protobuf"
 )
 
 // MockService
@@ -93,25 +94,9 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 
 				switch u.Scheme {
 				case "http", "https":
-					resp, err = c.client.Get(upstreamUrl, header, func(req *http.Request) {
-						if span.Span != nil {
-							newSpan = span.Inject(context.Background(), "GET", upstreamUrl, req)
-						}
-					})
-					if err == nil {
-						byteResp, _ := ioutil.ReadAll(resp.Body)
-						_ = json.Unmarshal(byteResp, upstreamResponse)
-					}
+					err, newSpan = c.sendHttpRequest(resp, err, upstreamUrl, header, span, newSpan, upstreamResponse)
 				case "grpc":
-					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-					mockResponse, err := c.mockGRpcClientService.Send(ctx, u.Host, header)
-					if err == nil {
-						b, e := json.Marshal(mockResponse)
-						if e == nil {
-							e = json.Unmarshal(b, upstreamResponse)
-						}
-					}
-					cancel()
+					err = c.sendGRpcRequest(u, header, upstreamResponse)
 				}
 
 				if err != nil {
@@ -136,6 +121,24 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 
 	response.Code = 200
 	response.Message = "Success"
+
+	c.injectFault(fiApp, fiVer, fiCluster, fiDelay, fiCode, response)
+
+	// response
+	respStr, _ := json.Marshal(response)
+	log.Info(string(respStr))
+
+	if span != nil && span.Span != nil {
+		span.LogFields(
+			olog.String("event", c.AppName),
+			olog.String("value", string(respStr)),
+		)
+	}
+
+	return
+}
+
+func (c *MockService) injectFault(fiApp string, fiVer string, fiCluster string, fiDelay int, fiCode int, response *model.GetResponse) {
 	if fiApp == c.AppName {
 
 		hasFaultInjection := true
@@ -164,17 +167,33 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 			}
 		}
 	}
+}
 
-	respStr, _ := json.Marshal(response)
-	log.Info(string(respStr))
-
-	if span != nil && span.Span != nil {
-		span.LogFields(
-			olog.String("event", c.AppName),
-			olog.String("value", string(respStr)),
-		)
+func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header, upstreamResponse *model.GetResponse) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	var mockResponse *protobuf.MockResponse
+	mockResponse, err = c.mockGRpcClientService.Send(ctx, u.Host, header)
+	if err == nil {
+		b, e := json.Marshal(mockResponse)
+		if e == nil {
+			e = json.Unmarshal(b, upstreamResponse)
+		}
 	}
+	cancel()
 	return
+}
+
+func (c *MockService) sendHttpRequest(resp *http.Response, err error, upstreamUrl string, header http.Header, span *jaeger.ChildSpan, newSpan opentracing.Span, upstreamResponse *model.GetResponse) (error, opentracing.Span) {
+	resp, err = c.client.Get(upstreamUrl, header, func(req *http.Request) {
+		if span.Span != nil {
+			newSpan = span.Inject(context.Background(), "GET", upstreamUrl, req)
+		}
+	})
+	if err == nil {
+		byteResp, _ := ioutil.ReadAll(resp.Body)
+		_ = json.Unmarshal(byteResp, upstreamResponse)
+	}
+	return err, newSpan
 }
 
 func (c *MockService) parseUpstream() []string {

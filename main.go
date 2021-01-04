@@ -25,8 +25,8 @@ import (
 	"hidevops.io/hiboot/pkg/starter/jaeger"
 	"hidevops.io/hiboot/pkg/starter/logging"
 	_ "solarmesh.io/mockservices/src/controller"
-	_ "solarmesh.io/mockservices/src/rpc/server"
-	_ "solarmesh.io/mockservices/src/tcp"
+	_ "solarmesh.io/mockservices/src/service/grpc/server"
+	_ "solarmesh.io/mockservices/src/service/tcp"
 )
 
 func main() {
