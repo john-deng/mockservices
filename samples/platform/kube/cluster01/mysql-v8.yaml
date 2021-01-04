@@ -43,6 +43,8 @@ spec:
           image: solarmesh/mockservices:latest
           imagePullPolicy: Always # IfNotPresent
           env:
+            - name: APP_PROFILES_ACTIVE
+              value: dev
             - name: APP_NAME
               value: mysql
             - name: APP_VERSION

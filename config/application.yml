@@ -4,15 +4,6 @@
 app:
   project: solarmesh
   name: mockservices
-  profiles:
-    include:
-    - logging
-    - locale
-    - grpc
-    - tcp
-    - jaeger
-    - httpclient
-    - actuator
 
 logging:
   level: info
@@ -25,12 +16,11 @@ grpc:
 
 tcp:
   server:
-    enabled: false
-    port: 8586
+    enabled: true
+    port: 8585
 
 jaeger:
   config:
-    serviceName: ${app.name}
     sampler:
       type: const
       param: 1

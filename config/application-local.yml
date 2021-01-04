@@ -12,7 +12,7 @@ grpc:
 
 tcp:
   server:
-    enabled: true
+    enabled: false
     port: 8585
 
 jaeger:

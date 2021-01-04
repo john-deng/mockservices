@@ -43,6 +43,8 @@ spec:
           image: solarmesh/mockservices:latest
           imagePullPolicy: Always # IfNotPresent
           env:
+            - name: APP_PROFILES_ACTIVE
+              value: dev
             - name: APP_NAME
               value: product
             - name: APP_VERSION
@@ -51,8 +53,6 @@ spec:
               value: cluster01
             - name: USER_DATA
               value: Product v2
-            - name: UPSTREAM_URLS
-              value: tcp://mysql:3306,
           ports:
             - containerPort: 8080
             - containerPort: 7575
