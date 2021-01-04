@@ -19,20 +19,20 @@ metadata:
   name: product-v1
   labels:
     app: product
-    version: v3
+    version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: product
-      version: v3
+      version: v1
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "true"
       labels:
         app: product
-        version: v3
+        version: v1
     spec:
       terminationGracePeriodSeconds: 0
       containers:
@@ -48,5 +48,7 @@ spec:
               value: cluster02
             - name: USER_DATA
               value: Your customized user data
+            - name: UPSTREAM_URLS
+              value: tcp://mysql:3306,
           ports:
             - containerPort: 8080  
