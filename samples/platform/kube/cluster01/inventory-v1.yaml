@@ -9,6 +9,9 @@ spec:
     - port: 8080
       name: http
       targetPort: 8080
+    - port: 7575
+      name: grpc
+      targetPort: 7575
   selector:
     app: inventory
 
@@ -49,6 +52,7 @@ spec:
             - name: USER_DATA
               value: Inventory v1
             - name: UPSTREAM_URLS
-              value: http://product:8080/,
+              value: grpc://product:7575/,
           ports:
-            - containerPort: 8080  
+            - containerPort: 8080
+            - containerPort: 7575

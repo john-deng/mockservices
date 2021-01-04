@@ -49,6 +49,6 @@ spec:
             - name: USER_DATA
               value: The order app v1
             - name: UPSTREAM_URLS
-              value: http://payment:8080/,http://product:8080,http://inventory:8080,http://user:8080,
+              value: http://payment:8080/,grpc://product:7575,grpc://inventory:7575,http://user:8080,
           ports:
             - containerPort: 8080  

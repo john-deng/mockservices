@@ -9,6 +9,9 @@ spec:
     - port: 8080
       name: http
       targetPort: 8080
+    - port: 7575
+      name: grpc
+      targetPort: 7575
   selector:
     app: product
 
@@ -45,10 +48,11 @@ spec:
             - name: APP_VERSION
               value: v3
             - name: CLUSTER_NAME
-              value: cluster01
+              value: cluster03
             - name: USER_DATA
               value: Product v3
             - name: UPSTREAM_URLS
               value: tcp://mysql:3306,
           ports:
-            - containerPort: 8080  
+            - containerPort: 8080
+            - containerPort: 7575

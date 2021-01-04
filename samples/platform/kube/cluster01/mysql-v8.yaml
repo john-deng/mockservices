@@ -9,6 +9,9 @@ spec:
     - port: 8080
       name: http
       targetPort: 8080
+    - port: 3306
+      name: tcp
+      targetPort: 3306
   selector:
     app: mysql
 
@@ -53,4 +56,5 @@ spec:
             - name: TCP_SERVER_PORT
               value: "3306"
           ports:
-            - containerPort: 8080  
+            - containerPort: 8080
+            - containerPort: 3306
