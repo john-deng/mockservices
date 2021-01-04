@@ -9,6 +9,7 @@ app:
     - logging
     - locale
     - grpc
+    - tcp
     - jaeger
     - httpclient
     - actuator
@@ -22,7 +23,10 @@ grpc:
     network: tcp
     port: 7575
 
-# config file for testing
+tcp:
+  server:
+    enabled: false
+    port: 8586
 
 jaeger:
   config:

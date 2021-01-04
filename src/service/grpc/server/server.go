@@ -31,8 +31,8 @@ import (
 	"hidevops.io/hiboot/pkg/log"
 	"hidevops.io/hiboot/pkg/starter/grpc"
 	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/rpc/protobuf"
 	"solarmesh.io/mockservices/src/service"
+	"solarmesh.io/mockservices/src/service/grpc/protobuf"
 )
 
 // server is used to implement protobuf.GreeterServer.
@@ -61,7 +61,7 @@ func (s *MockGRpcServerService) Send(ctx context.Context, request *protobuf.Mock
 			httpHeader.Set(k, v[0])
 		}
 	}
-	var resp *model.GetResponse
+	var resp *model.Response
 	response = new(protobuf.MockResponse)
 	resp, err = s.mockService.SendRequest("GRPC", nil, httpHeader)
 	if err == nil {

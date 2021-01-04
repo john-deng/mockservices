@@ -1,54 +1,56 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: product
+  name: mysql
   labels:
-    app: product
+    app: mysql
 spec:
   ports:
     - port: 8080
       name: http
       targetPort: 8080
   selector:
-    app: product
+    app: mysql
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-v1
+  name: mysql-v1
   labels:
-    app: product
+    app: mysql
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: product
+      app: mysql
       version: v1
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "true"
       labels:
-        app: product
+        app: mysql
         version: v1
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-        - name: product
+        - name: mysql
           image: solarmesh/mockservices:latest
           imagePullPolicy: Always # IfNotPresent
           env:
             - name: APP_NAME
-              value: product
+              value: mysql
             - name: APP_VERSION
-              value: v1
+              value: v8.0
             - name: CLUSTER_NAME
               value: cluster01
             - name: USER_DATA
-              value: Your customized user data
-            - name: UPSTREAM_URLS
-              value: tcp://mysql:3306,
+              value: mysql
+            - name: TCP_SERVER_ENABLED
+              value: true
+            - name: TCP_SERVER_PORT
+              value: 3306
           ports:
             - containerPort: 8080  

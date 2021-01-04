@@ -45,8 +45,10 @@ spec:
             - name: APP_VERSION
               value: v2
             - name: CLUSTER_NAME
-              value: cluster02
+              value: cluster01
             - name: USER_DATA
               value: Product v2
+            - name: UPSTREAM_URLS
+              value: tcp://mysql:3306,
           ports:
             - containerPort: 8080  

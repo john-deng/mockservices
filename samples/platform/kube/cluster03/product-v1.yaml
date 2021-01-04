@@ -48,5 +48,7 @@ spec:
               value: cluster03
             - name: USER_DATA
               value: Your customized user data
+            - name: UPSTREAM_URLS
+              value: tcp://mysql:3306,
           ports:
             - containerPort: 8080  
