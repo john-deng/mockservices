@@ -16,23 +16,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-v1
+  name: mysql-v8
   labels:
     app: mysql
-    version: v1
+    version: v8
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: mysql
-      version: v1
+      version: v8
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "true"
       labels:
         app: mysql
-        version: v1
+        version: v8
     spec:
       terminationGracePeriodSeconds: 0
       containers:
@@ -49,8 +49,8 @@ spec:
             - name: USER_DATA
               value: mysql
             - name: TCP_SERVER_ENABLED
-              value: true
+              value: "true"
             - name: TCP_SERVER_PORT
-              value: 3306
+              value: "3306"
           ports:
             - containerPort: 8080  
