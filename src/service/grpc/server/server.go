@@ -61,7 +61,7 @@ func (s *MockGRpcServerService) Send(ctx context.Context, request *protobuf.Mock
 			httpHeader.Set(k, v[0])
 		}
 	}
-	var resp *model.GetResponse
+	var resp *model.Response
 	response = new(protobuf.MockResponse)
 	resp, err = s.mockService.SendRequest("GRPC", nil, httpHeader)
 	if err == nil {

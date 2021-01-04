@@ -18,16 +18,17 @@ import (
 	"hidevops.io/hiboot/pkg/starter/httpclient"
 	"hidevops.io/hiboot/pkg/starter/jaeger"
 	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/service/grpc/client"
+	grpcclient "solarmesh.io/mockservices/src/service/grpc/client"
 	"solarmesh.io/mockservices/src/service/grpc/protobuf"
+	tcpclient "solarmesh.io/mockservices/src/service/tcp/client"
 )
 
 // MockService
 type MockService struct {
 
 	client httpclient.Client
-
-	mockGRpcClientService *client.MockGRpcClientService
+	mockGRpcClient *grpcclient.MockGRpcClient
+	mockTcpClient  *tcpclient.MockTcpClient
 
 	UpstreamUrls string   `value:"${upstream.urls}"`
 	Upstreams    []string `value:"${upstream.urls}"`
@@ -37,10 +38,15 @@ type MockService struct {
 	UserData     string   `value:"${user.data:solarmesh}"`
 }
 
-func newMockService(httpClient httpclient.Client, mockGRpcClientService *client.MockGRpcClientService) *MockService {
+func newMockService(httpClient httpclient.Client,
+	gRpcMockClient *grpcclient.MockGRpcClient,
+	tcpMockClient *tcpclient.MockTcpClient,
+	) *MockService {
+
 	return &MockService{
-		client: httpClient,
-		mockGRpcClientService: mockGRpcClientService,
+		client:         httpClient,
+		mockGRpcClient: gRpcMockClient,
+		mockTcpClient:  tcpMockClient,
 	}
 }
 
@@ -48,8 +54,8 @@ func init() {
 	app.Register(newMockService)
 }
 
-func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, header http.Header) (response *model.GetResponse, err error) {
-	response = new(model.GetResponse)
+func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, header http.Header) (response *model.Response, err error) {
+	response = new(model.Response)
 
 	if span != nil && span.Span != nil {
 		defer span.Finish()
@@ -87,7 +93,7 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 				}
 
 				//TODO: use interface instead to further dev for the extensibility of protocols
-				var upstreamResponse *model.GetResponse
+				var upstreamResponse *model.Response
 				switch u.Scheme {
 				case "http", "https":
 					upstreamResponse, err = c.sendHttpRequest(upstreamUrl, header, span)
@@ -104,7 +110,7 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 					response.Data.Upstream = append(response.Data.Upstream, upstreamResponse)
 				} else {
 					errMsg := err.Error()
-					upstreamResponse = new(model.GetResponse)
+					upstreamResponse = new(model.Response)
 					upstreamResponse.Code = 500
 					upstreamResponse.Message = errMsg
 					log.Error(errMsg)
@@ -133,7 +139,7 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 	return
 }
 
-func (c *MockService) injectFault(fiApp string, fiVer string, fiCluster string, fiDelay int, fiCode int, response *model.GetResponse) {
+func (c *MockService) injectFault(fiApp string, fiVer string, fiCluster string, fiDelay int, fiCode int, response *model.Response) {
 	if fiApp == c.AppName {
 
 		hasFaultInjection := true
@@ -164,11 +170,11 @@ func (c *MockService) injectFault(fiApp string, fiVer string, fiCluster string, 
 	}
 }
 
-func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header) (upstreamResponse *model.GetResponse, err error) {
-	upstreamResponse = new(model.GetResponse)
+func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header) (upstreamResponse *model.Response, err error) {
+	upstreamResponse = new(model.Response)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	var mockResponse *protobuf.MockResponse
-	mockResponse, err = c.mockGRpcClientService.Send(ctx, u.Host, header)
+	mockResponse, err = c.mockGRpcClient.Send(ctx, u.Host, header)
 	if err == nil {
 		b, e := json.Marshal(mockResponse)
 		if e == nil {
@@ -179,8 +185,8 @@ func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header) (upstreamR
 	return
 }
 
-func (c *MockService) sendHttpRequest(upstreamUrl string, header http.Header, span *jaeger.ChildSpan) (upstreamResponse *model.GetResponse, err error) {
-	upstreamResponse = new(model.GetResponse)
+func (c *MockService) sendHttpRequest(upstreamUrl string, header http.Header, span *jaeger.ChildSpan) (upstreamResponse *model.Response, err error) {
+	upstreamResponse = new(model.Response)
 	var resp *http.Response
 	var newSpan opentracing.Span
 	resp, err = c.client.Get(upstreamUrl, header, func(req *http.Request) {
@@ -216,12 +222,18 @@ func (c *MockService) parseUpstream() []string {
 	return upstreamUrls
 }
 
-func (c *MockService) sendTcpRequest(u *url.URL, header http.Header) (upstreamResponse *model.GetResponse, err error) {
-	upstreamResponse = new(model.GetResponse)
+func (c *MockService) sendTcpRequest(u *url.URL, header http.Header) (upstreamResponse *model.Response, err error) {
+	var tcpResponse *model.TcpResponse
+	tcpResponse, err = c.mockTcpClient.Send(context.Background(), u.Host, header)
+	if err == nil {
+		upstreamResponse = tcpResponse.Response
+		log.Debugf("%+v", tcpResponse.Header)
+	}
+
 	return
 }
 
-func (c *MockService) sendUdpRequest(u *url.URL, header http.Header) (upstreamResponse *model.GetResponse, err error) {
-	upstreamResponse = new(model.GetResponse)
+func (c *MockService) sendUdpRequest(u *url.URL, header http.Header) (upstreamResponse *model.Response, err error) {
+	upstreamResponse = new(model.Response)
 	return
 }

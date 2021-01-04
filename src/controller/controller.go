@@ -20,18 +20,18 @@ type Controller struct {
 
 	client httpclient.Client
 
-	mockGRpcClientService *client.MockGRpcClientService
-	mockService *service.MockService
+	mockGRpcClient *client.MockGRpcClient
+	mockService    *service.MockService
 }
 
 // Init inject helloServiceClient
 func newController(httpClient httpclient.Client,
-	mockGRpcClientService *client.MockGRpcClientService,
+	mockGRpcClient *client.MockGRpcClient,
 	mockService *service.MockService) *Controller {
 	return &Controller{
-		client: httpClient,
-		mockGRpcClientService: mockGRpcClientService,
-		mockService: mockService,
+		client:         httpClient,
+		mockGRpcClient: mockGRpcClient,
+		mockService:    mockService,
 	}
 }
 
@@ -42,14 +42,14 @@ func init() {
 // GET /
 func (c *Controller) Get(_ struct {
 	at.GetMapping `value:"/"`
-}, span *jaeger.ChildSpan, ctx webctx.Context) (response *model.GetResponse) {
+}, span *jaeger.ChildSpan, ctx webctx.Context) (response *model.Response) {
 	var err error
 	response, err = c.mockService.SendRequest("HTTP", span, ctx.Request().Header)
 	c.response(err, response, ctx)
 	return
 }
 
-func (c *Controller) response(err error, response *model.GetResponse, ctx webctx.Context) {
+func (c *Controller) response(err error, response *model.Response, ctx webctx.Context) {
 	if err == nil {
 		response.Data.Url = ctx.Host() + ctx.Path()
 		ctx.StatusCode(response.Code)

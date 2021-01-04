@@ -21,17 +21,28 @@ package main
 import (
 	"hidevops.io/hiboot/pkg/app"
 	"hidevops.io/hiboot/pkg/app/web"
-	_ "hidevops.io/hiboot/pkg/starter/actuator"
+	"hidevops.io/hiboot/pkg/starter/actuator"
+	"hidevops.io/hiboot/pkg/starter/grpc"
+	"hidevops.io/hiboot/pkg/starter/httpclient"
 	"hidevops.io/hiboot/pkg/starter/jaeger"
+	"hidevops.io/hiboot/pkg/starter/locale"
 	"hidevops.io/hiboot/pkg/starter/logging"
 	_ "solarmesh.io/mockservices/src/controller"
 	_ "solarmesh.io/mockservices/src/service/grpc/server"
-	_ "solarmesh.io/mockservices/src/service/tcp"
+	"solarmesh.io/mockservices/src/service/tcp"
 )
 
 func main() {
 	// create new web application and run it
+	app.IncludeProfiles(
+		logging.Profile,
+		locale.Profile,
+		grpc.Profile,
+		tcp.Profile,
+		jaeger.Profile,
+		httpclient.Profile,
+		actuator.Profile)
+
 	web.NewApplication().
-		SetProperty(app.ProfilesInclude, logging.Profile, jaeger.Profile).
 		Run()
 }

@@ -6,31 +6,29 @@ import (
 	"solarmesh.io/mockservices/src/service/tcp/server"
 )
 
-var Profile = "tcp"
+const Profile string = "tcp"
 
 type configuration struct {
 	at.AutoConfiguration
 
-	properties *Properties
-	mockTcpServer *server.MockTcpServer
+	properties *properties
 }
 
-func newConfiguration(properties *Properties,
-	mockTcpServer *server.MockTcpServer) *configuration {
-	return &configuration{
-		properties:    properties,
-		mockTcpServer: mockTcpServer,
-	}
+func newConfiguration(properties *properties) *configuration {
+	return &configuration{properties: properties}
 }
 
 func init() {
-	app.IncludeProfiles("tcp")
 	app.Register(newConfiguration)
 }
 
-func (c *configuration) Server() (sever *Server)  {
+type ServerListener struct {
 
-	c.mockTcpServer.Listen(c.properties.Server.Port)
+}
 
-	return &Server{}
+func (c *configuration) ServerListener(mockServer *server.MockServer) (serverListener *ServerListener) {
+	if c.properties.Server.Enabled {
+		mockServer.Listen(c.properties.Server.Port)
+	}
+	return
 }

@@ -3,24 +3,26 @@ package server
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net"
+	"net/http"
 	"strings"
-	"time"
 
 	"hidevops.io/hiboot/pkg/app"
 	"hidevops.io/hiboot/pkg/log"
+	"solarmesh.io/mockservices/src/model"
 	"solarmesh.io/mockservices/src/service"
 )
 
 
 // server is used to implement protobuf.GreeterServer.
-type MockTcpServer struct {
+type MockServer struct {
 	mockService *service.MockService
 }
 
-func newMockTcpServerService(mockService *service.MockService) *MockTcpServer {
-	return &MockTcpServer{mockService: mockService}
+func newMockTcpServerService(mockService *service.MockService) *MockServer {
+	return &MockServer{mockService: mockService}
 }
 
 func init() {
@@ -28,68 +30,60 @@ func init() {
 }
 
 // Listen implementation
-func (s *MockTcpServer) Listen(port string) {
-	if port == "" {
-		port = "8585"
-	}
-	tcpServerPort := fmt.Sprintf(":%v", port)
-	l, err := net.Listen("tcp", tcpServerPort)
-	if err != nil {
-		log.Error(err)
-		return
-	}
+func (s *MockServer) Listen(port string) {
 	go func() {
-		log.Infof("Listening on TCP port %v", port)
-		c, err := l.Accept()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
 		for {
-			netData, err := bufio.NewReader(c).ReadString('\n')
+			var err error
+			if port == "" {
+				port = "8585"
+			}
+			address := fmt.Sprintf(":%v", port)
+			l, err := net.Listen("tcp", address)
+			if err != nil {
+				log.Error(err)
+				return
+			}
+			log.Infof("Listening on TCP port %v", port)
+			var conn net.Conn
+			conn, err = l.Accept()
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			if strings.TrimSpace(string(netData)) == "STOP" {
-				fmt.Println("Exiting TCP server!")
-				return
+			var request *model.TcpRequest
+			var response *model.TcpResponse
+			for {
+				netData, err := bufio.NewReader(conn).ReadBytes('\n')
+				if err != nil {
+					log.Info(err)
+					break
+				}
+				if strings.TrimSpace(string(netData)) == "STOP" {
+					log.Info("Exiting TCP server!")
+					break
+				}
+
+				var rb []byte
+				var num int
+				request = new(model.TcpRequest)
+				request.Header = make(http.Header)
+				response = new(model.TcpResponse)
+				// parse data
+				err = json.Unmarshal(netData, request)
+				if err == nil {
+					response.Response, err = s.mockService.SendRequest("TCP", nil, request.Header)
+					response.Header = request.Header
+					rb, err = json.Marshal(response)
+					rb = append(rb, []byte("\n")...)
+					if err == nil {
+						num, err = conn.Write(rb)
+						if err == nil {
+							log.Infof("%v bytes response by TCP", num)
+						}
+					}
+				}
 			}
-			// read json
-
-			fmt.Print("-> ", string(netData))
-			t := time.Now()
-			myTime := t.Format(time.RFC3339) + "\n"
-
-			// response json
-			c.Write([]byte(myTime))
+			err = l.Close()
 		}
-		l.Close()
 	}()
-
-	//
-	//httpHeader := make(http.Header)
-	//header, ok := metadata.FromIncomingContext(ctx)
-	//if ok {
-	//	for k, v := range header {
-	//		log.Infof("> %v: %v", k, v)
-	//		httpHeader.Set(k, v[0])
-	//	}
-	//}
-	//var resp *model.GetResponse
-	//response = new(protobuf.MockResponse)
-	//resp, err = s.mockService.SendRequest("TCP", nil, httpHeader)
-	//if err == nil {
-	//	b, e := json.Marshal(resp)
-	//	if e == nil {
-	//		e = json.Unmarshal(b, response)
-	//	}
-	//}
-	//
-	//// Anything linked to this variable will transmit response headers.
-	//if err := ggrpc.SendHeader(ctx, header); err != nil {
-	//	return nil, status.Errorf(codes.Internal, "unable to send header")
-	//}
-
-	return
 }

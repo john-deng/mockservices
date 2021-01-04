@@ -32,24 +32,24 @@ import (
 )
 
 // server is used to implement protobuf.GreeterServer.
-type MockGRpcClientService struct {
+type MockGRpcClient struct {
 	AppName string `value:"${app.name}"`
 
 	clientConnector grpc2.ClientConnector
 }
 
-func newMockGRpcClientService(clientConnector grpc2.ClientConnector) *MockGRpcClientService {
-	return &MockGRpcClientService{
+func newMockGRpcClient(clientConnector grpc2.ClientConnector) *MockGRpcClient {
+	return &MockGRpcClient{
 		clientConnector: clientConnector,
 	}
 }
 
 func init() {
-	app.Register(newMockGRpcClientService)
+	app.Register(newMockGRpcClient)
 }
 
-// SayMock implements Mockworld.GreeterServer
-func (s *MockGRpcClientService) Send(ctx context.Context, address string, header http.Header) (response *protobuf.MockResponse, err error) {
+// Send implementation
+func (s *MockGRpcClient) Send(ctx context.Context, address string, header http.Header) (response *protobuf.MockResponse, err error) {
 	//var msc interface{}
 	var conn *grpc.ClientConn
 	conn, err = s.clientConnector.Connect(address)

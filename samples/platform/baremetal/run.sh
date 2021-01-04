@@ -14,13 +14,24 @@ if [[ "$1" != "cleanup" ]]; then
     go build
   fi
 
+#    # Run as product v1
+  nohup ./mockservices \
+    --app.name=database \
+    --app.version=v1 \
+    --cluster.name=cluster01 \
+    --user.data=baremetal \
+    --tcp.server.enabled=true \
+    --tcp.server.port=3366 \
+    --server.port=9090 &
+
   # Run as product v1
   nohup ./mockservices \
     --app.name=product \
     --app.version=v1 \
     --cluster.name=cluster01 \
     --user.data=baremetal \
-    --server.port=8080 &
+    --server.port=8080 \
+    --upstream.urls='tcp://localhost:3366,' &
 
 
   # Run as inventory v1
