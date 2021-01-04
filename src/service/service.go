@@ -58,7 +58,6 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 			greeting = "Hello"
 		}
 	}
-	var newSpan opentracing.Span
 
 	//response.Data.UserAgent = ua.Parse(ctx.GetHeader("User-Agent"))
 	fiApp := header.Get("fi-app")
@@ -81,40 +80,36 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 		response.Data.MetaData = " -> " + c.AppName + " -> "
 		for _, upstreamUrl := range upstreamUrls {
 			if upstreamUrl != "" {
-				upstreamResponse := new(model.GetResponse)
-				upstreamResponse.Data.Url = upstreamUrl
-				var newResp string
-
 				u, err := url.Parse(upstreamUrl)
 				if err != nil {
 					log.Warnf("Bad URL format: %v", upstreamUrl)
 					continue
 				}
-				var resp *http.Response
 
+				//TODO: use interface instead to further dev for the extensibility of protocols
+				var upstreamResponse *model.GetResponse
 				switch u.Scheme {
 				case "http", "https":
-					err, newSpan = c.sendHttpRequest(resp, err, upstreamUrl, header, span, newSpan, upstreamResponse)
+					upstreamResponse, err = c.sendHttpRequest(upstreamUrl, header, span)
 				case "grpc":
-					err = c.sendGRpcRequest(u, header, upstreamResponse)
+					upstreamResponse, err = c.sendGRpcRequest(u, header)
+				case "tcp":
+					upstreamResponse, err = c.sendTcpRequest(u, header)
+				case "udp":
+					upstreamResponse, err = c.sendUdpRequest(u, header)
 				}
-
-				if err != nil {
+				if err == nil {
+					upstreamResponse.Data.SourceApp = c.AppName
+					upstreamResponse.Data.SourceAppVersion = c.Version
+					response.Data.Upstream = append(response.Data.Upstream, upstreamResponse)
+				} else {
 					errMsg := err.Error()
+					upstreamResponse = new(model.GetResponse)
 					upstreamResponse.Code = 500
 					upstreamResponse.Message = errMsg
 					log.Error(errMsg)
 				}
-				upstreamResponse.Data.SourceApp = c.AppName
-				upstreamResponse.Data.SourceAppVersion = c.Version
-				response.Data.Upstream = append(response.Data.Upstream, upstreamResponse)
-
-				if newSpan != nil {
-					newSpan.LogFields(
-						olog.String("event", upstreamUrl),
-						olog.String("value", newResp),
-					)
-				}
+				upstreamResponse.Data.Url = upstreamUrl
 			}
 		}
 	}
@@ -169,7 +164,8 @@ func (c *MockService) injectFault(fiApp string, fiVer string, fiCluster string, 
 	}
 }
 
-func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header, upstreamResponse *model.GetResponse) (err error) {
+func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header) (upstreamResponse *model.GetResponse, err error) {
+	upstreamResponse = new(model.GetResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	var mockResponse *protobuf.MockResponse
 	mockResponse, err = c.mockGRpcClientService.Send(ctx, u.Host, header)
@@ -183,7 +179,10 @@ func (c *MockService) sendGRpcRequest(u *url.URL, header http.Header, upstreamRe
 	return
 }
 
-func (c *MockService) sendHttpRequest(resp *http.Response, err error, upstreamUrl string, header http.Header, span *jaeger.ChildSpan, newSpan opentracing.Span, upstreamResponse *model.GetResponse) (error, opentracing.Span) {
+func (c *MockService) sendHttpRequest(upstreamUrl string, header http.Header, span *jaeger.ChildSpan) (upstreamResponse *model.GetResponse, err error) {
+	upstreamResponse = new(model.GetResponse)
+	var resp *http.Response
+	var newSpan opentracing.Span
 	resp, err = c.client.Get(upstreamUrl, header, func(req *http.Request) {
 		if span.Span != nil {
 			newSpan = span.Inject(context.Background(), "GET", upstreamUrl, req)
@@ -192,8 +191,14 @@ func (c *MockService) sendHttpRequest(resp *http.Response, err error, upstreamUr
 	if err == nil {
 		byteResp, _ := ioutil.ReadAll(resp.Body)
 		_ = json.Unmarshal(byteResp, upstreamResponse)
+		if newSpan != nil {
+			newSpan.LogFields(
+				olog.String("event", upstreamUrl),
+				olog.String("value", string(byteResp)),
+			)
+		}
 	}
-	return err, newSpan
+	return
 }
 
 func (c *MockService) parseUpstream() []string {
@@ -207,5 +212,16 @@ func (c *MockService) parseUpstream() []string {
 	if c.UpstreamUrls == "" && len(c.Upstreams) != 0 {
 		upstreamUrls = append(upstreamUrls, c.Upstreams...)
 	}
+
 	return upstreamUrls
+}
+
+func (c *MockService) sendTcpRequest(u *url.URL, header http.Header) (upstreamResponse *model.GetResponse, err error) {
+	upstreamResponse = new(model.GetResponse)
+	return
+}
+
+func (c *MockService) sendUdpRequest(u *url.URL, header http.Header) (upstreamResponse *model.GetResponse, err error) {
+	upstreamResponse = new(model.GetResponse)
+	return
 }
