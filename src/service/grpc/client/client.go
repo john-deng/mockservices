@@ -20,14 +20,14 @@
 package client
 
 import (
+	"fmt"
 	"net/http"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"hidevops.io/hiboot/pkg/app"
 	"hidevops.io/hiboot/pkg/log"
-	grpc2 "hidevops.io/hiboot/pkg/starter/grpc"
+	"hidevops.io/hiboot/pkg/starter/grpc"
 	"solarmesh.io/mockservices/src/service/grpc/protobuf"
 )
 
@@ -35,10 +35,10 @@ import (
 type MockGRpcClient struct {
 	AppName string `value:"${app.name}"`
 
-	clientConnector grpc2.ClientConnector
+	clientConnector grpc.ClientConnector
 }
 
-func newMockGRpcClient(clientConnector grpc2.ClientConnector) *MockGRpcClient {
+func newMockGRpcClient(clientConnector grpc.ClientConnector) *MockGRpcClient {
 	return &MockGRpcClient{
 		clientConnector: clientConnector,
 	}
@@ -51,9 +51,14 @@ func init() {
 // Send implementation
 func (s *MockGRpcClient) Send(ctx context.Context, address string, header http.Header) (response *protobuf.MockResponse, err error) {
 	//var msc interface{}
-	var conn *grpc.ClientConn
-	conn, err = s.clientConnector.Connect(address)
-	if err != nil {
+	if s.clientConnector == nil {
+		err = fmt.Errorf("[src.service.grpc.client] clientConnector is nil")
+		log.Error(err)
+		return
+	}
+	conn, e := s.clientConnector.Connect(address)
+	if e != nil {
+		err = e
 		return
 	}
 	defer conn.Close()

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+profile=dev
+
 if [[ $(docker network ls | grep -c solarmesh) == 0 ]]; then
   docker network create solarmesh
 fi
-
 
 function clean_up_docker() {
   container=$1
@@ -21,7 +22,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=database \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
-    -e APP_PROFILES_ACTIVE=local \
+    -e APP_PROFILES_ACTIVE=${profile} \
     -e TCP_SERVER_ENABLED=true \
     solarmesh/mockservices:latest
 fi
@@ -35,7 +36,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=product \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
-    -e APP_PROFILES_ACTIVE=local \
+    -e APP_PROFILES_ACTIVE=${profile} \
     -e UPSTREAM_URLS='tcp://database:8585,' \
     solarmesh/mockservices:latest
 fi
@@ -48,7 +49,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=inventory \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
-    -e APP_PROFILES_ACTIVE=local \
+    -e APP_PROFILES_ACTIVE=${profile} \
     -e UPSTREAM_URLS='grpc://product:7575,' \
     solarmesh/mockservices:latest
 fi
@@ -61,7 +62,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=payment \
     -e APP_VERSION=v2 \
     -e CLUSTER_NAME=cluster01 \
-    -e APP_PROFILES_ACTIVE=local \
+    -e APP_PROFILES_ACTIVE=${profile} \
     -e UPSTREAM_URLS='grpc://product:7575,grpc://inventory:7575,' \
     solarmesh/mockservices:latest
 fi
@@ -75,7 +76,7 @@ if [[ "$1" != "cleanup" ]]; then
     -e APP_NAME=order \
     -e APP_VERSION=v1 \
     -e CLUSTER_NAME=cluster01 \
-    -e APP_PROFILES_ACTIVE=local \
+    -e APP_PROFILES_ACTIVE=${profile} \
     -e UPSTREAM_URLS='http://inventory:8080/,http://payment:8080/,' \
     -e LOGGING_LEVEL=debug \
     solarmesh/mockservices:latest
