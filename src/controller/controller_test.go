@@ -12,7 +12,7 @@ func TestBasic(t *testing.T) {
 	testApp := web.NewTestApp(t, newController).SetProperty("").Run(t)
 	testApp.Get("/").
 		Expect().Status(http.StatusOK).
-		Body().Contains("Hello")
+		Body().Contains("mockservices")
 }
 
 
@@ -25,7 +25,7 @@ func TestUpstreams(t *testing.T) {
 
 	testApp.Get("/").
 		Expect().Status(http.StatusOK).
-		Body().Contains("solarmesh")
+		Body().Contains("mockservices")
 }
 
 
@@ -43,7 +43,7 @@ func TestUpstreamsFI(t *testing.T) {
 		WithHeader("fi-code", "503").
 		WithHeader("fi-delay", "2").
 		Expect().Status(http.StatusServiceUnavailable).
-		Body().Contains("solarmesh")
+		Body().Contains("mockservices")
 }
 
 
