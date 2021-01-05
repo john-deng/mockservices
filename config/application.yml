@@ -4,6 +4,15 @@
 app:
   project: solarmesh
   name: mockservices
+  profiles:
+    include:
+    - logging
+    - locale
+    - grpc
+    - tcp
+    - jaeger
+    - httpclient
+    - actuator
 
 logging:
   level: info

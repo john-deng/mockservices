@@ -50,7 +50,7 @@ func TestUpstreamsFI(t *testing.T) {
 func TestGRpcUpstreamsFI(t *testing.T) {
 
 	testApp := web.NewTestApp(t, newController).
-		SetProperty("upstream.urls", "grpc://localhost:7575,http://localhost:8081,").
+		SetProperty("upstream.urls", "grpc://localhost:7575,").
 		SetProperty("app.name", "mockservices").
 		Run(t)
 

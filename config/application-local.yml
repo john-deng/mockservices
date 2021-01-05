@@ -8,7 +8,7 @@ logging:
 
 grpc:
   server:
-    port: 7575
+    port: 7576
 
 tcp:
   server:

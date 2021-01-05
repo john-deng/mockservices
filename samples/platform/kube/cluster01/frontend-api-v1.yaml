@@ -9,7 +9,7 @@ spec:
     - port: 8080
       name: http
       targetPort: 8080
-      nodePort: 32080
+      nodePort: 32081
   selector:
     app: frontend-api
   type: NodePort

@@ -15,13 +15,15 @@ import (
 	"solarmesh.io/mockservices/src/model"
 )
 
+type ConnPool map[string]pool.Pool
 
 type MockTcpClient struct {
-	pool pool.Pool
+	connPool ConnPool
 }
 
 func newMockTcpClientService() *MockTcpClient {
 	return &MockTcpClient{
+		connPool: make(ConnPool),
 	}
 }
 
@@ -29,9 +31,10 @@ func init() {
 	app.Register(newMockTcpClientService)
 }
 
-func (s *MockTcpClient) connect(address string)  (err error) {
+func (s *MockTcpClient) connect(address string)  (p pool.Pool, err error) {
 	//create a pool
-	if s.pool == nil || s.pool != nil && s.pool.Len() == 0 {
+	p = s.connPool[address]
+	if p == nil {
 		poolConfig := &pool.Config{
 			InitialCap: 2,
 			MaxIdle:    4,
@@ -41,10 +44,12 @@ func (s *MockTcpClient) connect(address string)  (err error) {
 			// When connection reached maximum, it will close after timeout to avoid EOF issue
 			IdleTimeout: 15 * time.Second,
 		}
-		s.pool, err = pool.NewChannelPool(poolConfig)
+		p, err = pool.NewChannelPool(poolConfig)
 		if err != nil {
 			log.Errorf("Error: %v", err)
+			return
 		}
+		s.connPool[address] = p
 	}
 	return
 }
@@ -52,12 +57,12 @@ func (s *MockTcpClient) connect(address string)  (err error) {
 func (s *MockTcpClient) Send(ctx context.Context, address string, header http.Header) (response *model.TcpResponse, err error) {
 	response = new(model.TcpResponse)
 	var conn net.Conn
-
-	err = s.connect(address)
+	var connPool pool.Pool
+	connPool, err = s.connect(address)
 	if err == nil {
 		var v interface{}
-		v, err = s.pool.Get()
-		defer s.pool.Put(v)
+		v, err = connPool.Get()
+		defer connPool.Put(v)
 		if err == nil {
 			conn = v.(net.Conn)
 			var b []byte
@@ -66,7 +71,7 @@ func (s *MockTcpClient) Send(ctx context.Context, address string, header http.He
 			b, err = json.Marshal(header)
 			num, err = fmt.Fprintf(conn, string(b)+"\n")
 			if err == nil {
-				log.Debugf("%v read", num)
+				log.Debugf("%v bytes read", num)
 				resp, err = bufio.NewReader(conn).ReadBytes('\n')
 				if err == nil {
 					err = json.Unmarshal(resp, response)
