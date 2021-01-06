@@ -17,6 +17,8 @@ UPSTREAM_URLS="$4"
 NODE_PORT="$5"
 DEBUG_NODE_PORT="$6"
 
+echo "Creating $APP_NAME $APP_VERSION on $CLUSTER_NAME with upstreams ${UPSTREAM_URLS}"
+
 if [[ "${NODE_PORT}" != "" ]]; then
 
 kubectl apply -f - <<_EOF
@@ -128,9 +130,9 @@ spec:
 _EOF
 }
 
-if [[ $# -gt 1 ]]; then
+if [[ $# -gt 2 ]]; then
 
-  echo "Creating new application for kubernetes ..."
+  echo "Creating new application on kubernetes ..."
 
   new_app "$@"
 

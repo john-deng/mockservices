@@ -190,7 +190,7 @@ func (c *MockService) sendHttpRequest(upstreamUrl string, header http.Header, sp
 	var resp *http.Response
 	var newSpan opentracing.Span
 	resp, err = c.client.Get(upstreamUrl, header, func(req *http.Request) {
-		if span.Span != nil {
+		if span != nil && span.Span != nil {
 			newSpan = span.Inject(context.Background(), "GET", upstreamUrl, req)
 		}
 	})
