@@ -115,11 +115,14 @@ _EOF
 }
 
 image=solarmesh/mockservices:latest
-if [[ "$1" != "" ]]; then
-  image=$1
+if [[ "$2" != "" ]]; then
+  image=$2
 fi
 
-profile=local
+profile=dev
+if [[ "$1" != "" ]]; then
+  profile=$1
+fi
 
 gateway_upstreams="http://payment:8080,http://order:8080,http://user:8080,http://reviews:8080,http://recommendation:8080,http://category:8080,"
 
