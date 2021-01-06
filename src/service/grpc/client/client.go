@@ -63,7 +63,6 @@ func (s *MockGRpcClient) Send(ctx context.Context, address string, header http.H
 	}
 	defer conn.Close()
 
-	log.Infof("gRPC client connected to: %v", address)
 	mockServiceClient := protobuf.NewMockServiceClient(conn)
 
 	// call grpc server method
