@@ -1,7 +1,7 @@
 # config file for testing
 
 server:
-  port: 8080
+  port: 8081
 
 logging:
   level: debug
@@ -13,7 +13,7 @@ grpc:
 tcp:
   server:
     enabled: false
-    port: 8585
+    port: 8586
 
 jaeger:
   config:

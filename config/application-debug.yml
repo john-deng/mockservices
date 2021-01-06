@@ -1,0 +1,16 @@
+# config file for testing
+
+server:
+  port: 8080
+
+logging:
+  level: debug
+
+grpc:
+  server:
+    port: 7575
+
+tcp:
+  server:
+    enabled: true
+    port: 8585

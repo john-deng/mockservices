@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+
+if [[ "${APP_PROFILES_ACTIVE}" == "" ]]; then
+  APP_PROFILES_ACTIVE=dev
+fi
+
+if [[ "${IMAGE}" == "" ]]; then
+  IMAGE=solarmesh/mockservices:latest
+fi
+
+#echo "use shell command to produce yaml that can be deployed to kubernetes"
+function new_app() {
+APP_NAME="$1"
+APP_VERSION="$2"
+CLUSTER_NAME="$3"
+UPSTREAM_URLS="$4"
+NODE_PORT="$5"
+DEBUG_NODE_PORT="$6"
+
+if [[ "${NODE_PORT}" != "" ]]; then
+
+kubectl apply -f - <<_EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APP_NAME}
+  labels:
+    app: ${APP_NAME}
+spec:
+  ports:
+    - port: 8080
+      name: http
+      targetPort: 8080
+      nodePort: ${NODE_PORT}
+    - port: 7575
+      name: grpc
+      targetPort: 7575
+    - port: 8585
+      name: tcp
+      targetPort: 8585
+    - port: 8443
+      name: http-8443
+      targetPort: 8443
+      nodePort: ${DEBUG_NODE_PORT}
+  selector:
+    app: ${APP_NAME}
+  type: NodePort
+_EOF
+
+else
+
+kubectl apply -f - <<_EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APP_NAME}
+  labels:
+    app: ${APP_NAME}
+spec:
+  ports:
+    - port: 8080
+      name: http
+      targetPort: 8080
+    - port: 7575
+      name: grpc
+      targetPort: 7575
+    - port: 8585
+      name: tcp
+      targetPort: 8585
+    - port: 8443
+      name: http
+      targetPort: 8443
+  selector:
+    app: ${APP_NAME}
+_EOF
+fi
+
+
+kubectl apply -f - <<_EOF
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${APP_NAME}-${APP_VERSION}
+  labels:
+    app: ${APP_NAME}
+    version: ${APP_VERSION}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${APP_NAME}
+      version: ${APP_VERSION}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: ${APP_NAME}
+        version: ${APP_VERSION}
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: ${APP_NAME}
+          image: ${IMAGE}
+          imagePullPolicy: Always # IfNotPresent
+          env:
+            - name: APP_PROFILES_ACTIVE
+              value: "${APP_PROFILES_ACTIVE:${profile}}"
+            - name: APP_NAME
+              value: "${APP_NAME}"
+            - name: APP_VERSION
+              value: "${APP_VERSION}"
+            - name: CLUSTER_NAME
+              value: "${CLUSTER_NAME}"
+            - name: USER_DATA
+              value: "${USER_DATA:Your own data}"
+            - name: TCP_SERVER_ENABLED
+              value: "true"
+            - name: UPSTREAM_URLS
+              value: "${UPSTREAM_URLS}"
+
+          ports:
+            - containerPort: 8080
+            - containerPort: 7575
+            - containerPort: 8585
+            - containerPort: 8443
+_EOF
+}
+
+if [[ $# -gt 1 ]]; then
+
+  echo "Creating new application for kubernetes ..."
+
+  new_app "$@"
+
+elif [[ "$1" == "-h" ]]; then
+  ## new_app api-gateway v1 cluster01 "${gateway_upstreams}" "${GW_NODE_PORT}"
+  echo ""
+  echo "new 'app-name' 'app-version' 'cluster-name' 'upstream-urls' 'node-port' "
+  echo ""
+fi
