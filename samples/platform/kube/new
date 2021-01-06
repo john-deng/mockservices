@@ -29,14 +29,14 @@ metadata:
 spec:
   ports:
     - port: 8080
-      name: http
+      name: http-8080
       targetPort: 8080
       nodePort: ${NODE_PORT}
     - port: 7575
-      name: grpc
+      name: grpc-7575
       targetPort: 7575
     - port: 8585
-      name: tcp
+      name: tcp-8585
       targetPort: 8585
     - port: 8443
       name: http-8443
@@ -59,16 +59,16 @@ metadata:
 spec:
   ports:
     - port: 8080
-      name: http
+      name: http-8080
       targetPort: 8080
     - port: 7575
-      name: grpc
+      name: grpc-7575
       targetPort: 7575
     - port: 8585
-      name: tcp
+      name: tcp-8585
       targetPort: 8585
     - port: 8443
-      name: http
+      name: http-8443
       targetPort: 8443
   selector:
     app: ${APP_NAME}
