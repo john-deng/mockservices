@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-profile=dev
+profile=local
 
 rm -f ./mockservices
 
@@ -36,6 +36,7 @@ if [[ "$1" != "cleanup" ]]; then
     --user.data=baremetal \
     --server.port=8080 \
     --grpc.server.port=7575 \
+    --tcp.server.port=8585 \
     --upstream.urls='tcp://localhost:3306,' &> product.out &
 
 
@@ -48,6 +49,7 @@ if [[ "$1" != "cleanup" ]]; then
     --user.data=demo \
     --server.port=8081 \
     --grpc.server.port=7576 \
+    --tcp.server.port=8586 \
     --upstream.urls='grpc://localhost:7575,' &> inventory.out &
 
 
@@ -60,6 +62,7 @@ if [[ "$1" != "cleanup" ]]; then
     --user.data=demo \
     --server.port=8082 \
     --grpc.server.port=7577 \
+    --tcp.server.port=8587 \
     --upstream.urls='grpc://localhost:7575,grpc://localhost:7576' &> order.out &
 
 
@@ -72,6 +75,7 @@ if [[ "$1" != "cleanup" ]]; then
     --user.data=demo \
     --server.port=8083 \
     --grpc.server.port=7578 \
+    --tcp.server.port=8588 \
     --upstream.urls='http://localhost:8081/,http://localhost:8082/' &> payment.out &
 
 fi
