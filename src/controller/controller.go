@@ -38,9 +38,10 @@ func (c *controller) Get(_ struct {
 	if err == nil {
 		response.Data.Url = ctx.Host() + ctx.Path()
 		ctx.StatusCode(response.Code)
-		for k, v := range ctx.Request().Header {
-			ctx.ResponseWriter().Header().Set(k, v[0])
-		}
+		// !!! DO NOT SEND HEADER back as it will conflict with envoy
+		//for k, v := range ctx.Request().Header {
+		//	ctx.ResponseWriter().Header().Set(k, v[0])
+		//}
 	}
 	return
 }

@@ -114,6 +114,11 @@ spec:
 _EOF
 }
 
+node_port=32080
+if [[ "$3" != "" ]]; then
+  node_port=$3
+fi
+
 image=solarmesh/mockservices:latest
 if [[ "$2" != "" ]]; then
   image=$2
@@ -126,7 +131,7 @@ fi
 
 gateway_upstreams="http://payment:8080,http://order:8080,http://user:8080,http://reviews:8080,http://recommendation:8080,http://category:8080,"
 
-new_app ${image} ${profile} api-gateway v1 cluster01 "${gateway_upstreams}" 32080
+new_app ${image} ${profile} api-gateway v1 cluster01 "${gateway_upstreams}" "${node_port}"
 
 new_app ${image} ${profile} order v1 cluster01 "http://payment:8080,http://user:8080,http://reviews:8080,http://inventory:8080,"
 new_app ${image} ${profile} order v2 cluster01 "http://payment:8080,http://user:8080,http://reviews:8080,http://inventory:8080,"
