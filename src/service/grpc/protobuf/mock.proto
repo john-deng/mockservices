@@ -24,7 +24,7 @@ package protobuf;
 // The mock service definition.
 service MockService {
   // Sends a greeting
-  grpc Send (MockRequest) returns (MockResponse) {}
+  rpc Send (MockRequest) returns (MockResponse) {}
 }
 
 // The request message containing the user's name.
