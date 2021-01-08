@@ -24,11 +24,14 @@ gateway_upstream_urls="http://payment:8080,http://order:8080,http://user:8080,ht
 
 new_app api-gateway v1 cluster01 "${gateway_upstream_urls}" "${GW_NODE_PORT}"
 
-order_upstream_urls="grpc://payment:7575,grpc://user:7575,grpc://reviews:7575,grpc://inventory:7575,grpc://logistics:7575,grpc://shipment:7575,grpc://notification:7575"
+order_upstream_urls="grpc://cart:7575,grpc://payment:7575,grpc://user:7575,grpc://reviews:7575,grpc://inventory:7575,grpc://logistics:7575,grpc://shipment:7575,grpc://notification:7575"
 
 new_app order v1 cluster01 "${order_upstream_urls}"
 new_app order v2 cluster01 "${order_upstream_urls}"
 new_app order v3 cluster01 "${order_upstream_urls}"
+
+new_app cart v1 cluster01 "tcp://cart-db:8585"
+new_app cart-db v1 cluster01 ""
 
 new_app payment v1 cluster01 "grpc://user:7575,grpc://notification:7575,tcp://payment-db:8585"
 
