@@ -8,6 +8,11 @@ if [[ "${IMAGE}" == "" ]]; then
   IMAGE=solarmesh/mockservices:latest
 fi
 
+NODE_TYPE=${NODE_TYPE}
+if [[ "${NODE_TYPE}" == "" ]]; then
+  NODE_TYPE=ClusterIP
+fi
+
 #echo "use shell command to produce yaml that can be deployed to kubernetes"
 function new_app() {
 APP_NAME="$1"
@@ -46,7 +51,7 @@ spec:
       nodePort: ${DEBUG_NODE_PORT}
   selector:
     app: ${APP_NAME}
-  type: NodePort
+  type: ${NODE_TYPE}
 _EOF
 
 else
@@ -74,6 +79,7 @@ spec:
       targetPort: 8443
   selector:
     app: ${APP_NAME}
+  type: ${NODE_TYPE}
 _EOF
 fi
 

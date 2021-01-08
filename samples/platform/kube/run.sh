@@ -15,9 +15,12 @@ if [[ "$2" != "" ]]; then
   export IMAGE=$2
 fi
 
-GW_NODE_PORT=32080
-if [[ "$3" != "" ]]; then
-  GW_NODE_PORT=$3
+GW_NODE_PORT=
+if [ "${NODE_TYPE}" == "NodePort" ]; then
+  GW_NODE_PORT=32080
+  if [[ "$3" != "" ]]; then
+    GW_NODE_PORT=$3
+  fi
 fi
 
 gateway_upstream_urls="http://payment:8080,http://order:8080,http://user:8080,http://reviews:8080,http://recommendation:8080,http://category:8080,"
