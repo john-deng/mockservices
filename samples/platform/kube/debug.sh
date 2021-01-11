@@ -7,7 +7,7 @@ source "${BASEDIR}/new"
 
 export APP_PROFILES_ACTIVE=debug
 
-export IMAGE=solarmesh/cloud-ide-go:v2.6.3
+export IMAGE=solarmesh/ide-go:v2.6.3
 if [[ "$1" != "" ]]; then
   export IMAGE=$1
 fi

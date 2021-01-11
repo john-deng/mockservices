@@ -24,39 +24,6 @@ DEBUG_NODE_PORT="$6"
 
 echo "Creating $APP_NAME $APP_VERSION on $CLUSTER_NAME with upstreams ${UPSTREAM_URLS}"
 
-if [[ "${NODE_TYPE}" == "LoadBalancer" ]]; then
-
-if [[ "${NODE_PORT}" == "" ]]; then
-
-kubectl apply -f - <<_EOF
-apiVersion: v1
-kind: Service
-metadata:
-  name: ${APP_NAME}
-  labels:
-    app: ${APP_NAME}
-spec:
-  ports:
-    - port: 8080
-      name: http-8080
-      targetPort: 8080
-    - port: 7575
-      name: grpc-7575
-      targetPort: 7575
-    - port: 8585
-      name: tcp-8585
-      targetPort: 8585
-    - port: 8443
-      name: http-8443
-      targetPort: 8443
-  selector:
-    app: ${APP_NAME}
-  type: ${NODE_TYPE}
-_EOF
-fi
-
-else
-
 if [[ "${NODE_PORT}" != "" ]]; then
 
 kubectl apply -f - <<_EOF
@@ -84,9 +51,36 @@ spec:
       nodePort: ${DEBUG_NODE_PORT}
   selector:
     app: ${APP_NAME}
+  type: NodePort
+_EOF
+
+else
+
+kubectl apply -f - <<_EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APP_NAME}
+  labels:
+    app: ${APP_NAME}
+spec:
+  ports:
+    - port: 8080
+      name: http-8080
+      targetPort: 8080
+    - port: 7575
+      name: grpc-7575
+      targetPort: 7575
+    - port: 8585
+      name: tcp-8585
+      targetPort: 8585
+    - port: 8443
+      name: http-8443
+      targetPort: 8443
+  selector:
+    app: ${APP_NAME}
   type: ${NODE_TYPE}
 _EOF
-fi
 
 fi
 
