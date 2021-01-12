@@ -30,7 +30,7 @@ echo "Creating $APP_NAME $APP_VERSION on $CLUSTER_NAME with upstreams ${UPSTREAM
 
 if [[ "${NODE_PORT}" != "" ]]; then
 
-kubectl "${NS}" apply -f - <<_EOF
+kubectl apply -f - <<_EOF
 apiVersion: v1
 kind: Service
 metadata:
@@ -60,7 +60,7 @@ _EOF
 
 else
 
-kubectl "${NS}" apply -f - <<_EOF
+kubectl apply -f - <<_EOF
 apiVersion: v1
 kind: Service
 metadata:
@@ -88,7 +88,7 @@ _EOF
 
 fi
 
-kubectl "${NS}" apply -f - <<_EOF
+kubectl apply -f - <<_EOF
 
 apiVersion: apps/v1
 kind: Deployment
