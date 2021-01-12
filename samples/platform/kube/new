@@ -13,6 +13,10 @@ if [[ "${NODE_TYPE}" == "" ]]; then
   NODE_TYPE=ClusterIP
 fi
 
+if [[ "${NAMESPACE}" != "" ]]; then
+  NS="-n ${NAMESPACE}"
+fi
+
 #echo "use shell command to produce yaml that can be deployed to kubernetes"
 function new_app() {
 APP_NAME="$1"
@@ -26,7 +30,7 @@ echo "Creating $APP_NAME $APP_VERSION on $CLUSTER_NAME with upstreams ${UPSTREAM
 
 if [[ "${NODE_PORT}" != "" ]]; then
 
-kubectl apply -f - <<_EOF
+kubectl "${NS}" apply -f - <<_EOF
 apiVersion: v1
 kind: Service
 metadata:
@@ -56,7 +60,7 @@ _EOF
 
 else
 
-kubectl apply -f - <<_EOF
+kubectl "${NS}" apply -f - <<_EOF
 apiVersion: v1
 kind: Service
 metadata:
@@ -84,7 +88,7 @@ _EOF
 
 fi
 
-kubectl apply -f - <<_EOF
+kubectl "${NS}" apply -f - <<_EOF
 
 apiVersion: apps/v1
 kind: Deployment

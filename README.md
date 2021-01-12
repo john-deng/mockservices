@@ -64,8 +64,13 @@ samples/platform/docker/run.sh
 Assume that you have Kubernetes installed, then you may just apply the yaml files of sample mockservices
 
 ```bash
-kubectl --context cluster01 create namespace solar-mock-shop
-kubectl --context cluster01 -n solar-mock-shop apply samples/platform/kube/cluster01
+samples/platform/kube/run.sh
+```
+
+To install samples on a specific namespace
+
+```bash
+export NAMESPACE=mockservices && samples/platform/kube/run.sh
 ```
 
 ### Test it
