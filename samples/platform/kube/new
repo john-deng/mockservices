@@ -14,7 +14,12 @@ if [[ "${NODE_TYPE}" == "" ]]; then
 fi
 
 if [[ "${NAMESPACE}" != "" ]]; then
-  NS="-n ${NAMESPACE}"
+  kubectl get ns | grep ${NAMESPACE} &>/dev/null
+  if [[ $? -gt 0 ]]; then
+    kubectl create ns ${NAMESPACE}
+  fi
+
+  kubectl config set-context --current --namespace=${NAMESPACE} &>/dev/null
 fi
 
 #echo "use shell command to produce yaml that can be deployed to kubernetes"
@@ -139,16 +144,19 @@ spec:
             - containerPort: 8443
 _EOF
 }
-
+echo "----------"
+#echo "$#"
 if [[ $# -gt 2 ]]; then
 
   echo "Creating new application on kubernetes ..."
 
   new_app "$@"
 
-elif [[ "$1" == "-h" ]]; then
+else #elif [[ "$1" == "-h" ]]; then
   ## new_app api-gateway v1 cluster01 "${gateway_upstreams}" "${GW_NODE_PORT}"
   echo ""
   echo "new 'app-name' 'app-version' 'cluster-name' 'upstream-urls' 'node-port' "
   echo ""
 fi
+
+
