@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/silenceper/pool"
@@ -19,6 +20,7 @@ type ConnPool map[string]pool.Pool
 
 type MockTcpClient struct {
 	connPool ConnPool
+	mutex sync.Mutex
 }
 
 func newMockTcpClientService() *MockTcpClient {
@@ -55,6 +57,7 @@ func (s *MockTcpClient) connect(address string)  (p pool.Pool, err error) {
 }
 
 func (s *MockTcpClient) Send(ctx context.Context, address string, header http.Header) (response *model.TcpResponse, err error) {
+	s.mutex.Lock()
 	response = new(model.TcpResponse)
 	var conn net.Conn
 	var connPool pool.Pool
@@ -79,5 +82,6 @@ func (s *MockTcpClient) Send(ctx context.Context, address string, header http.He
 			}
 		}
 	}
+	s.mutex.Unlock()
 	return
 }
