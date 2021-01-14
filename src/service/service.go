@@ -25,8 +25,7 @@ import (
 
 // MockService
 type MockService struct {
-
-	client httpclient.Client
+	client         httpclient.Client
 	mockGRpcClient *grpcclient.MockGRpcClient
 	mockTcpClient  *tcpclient.MockTcpClient
 
@@ -41,7 +40,7 @@ type MockService struct {
 func newMockService(httpClient httpclient.Client,
 	gRpcMockClient *grpcclient.MockGRpcClient,
 	tcpMockClient *tcpclient.MockTcpClient,
-	) *MockService {
+) *MockService {
 
 	return &MockService{
 		client:         httpClient,
@@ -76,6 +75,10 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 	response.Data.Version = c.Version
 	response.Data.Cluster = c.ClusterName
 	response.Data.UserData = c.UserData
+	log.Infof("Request Header from HTTP")
+	for k, v := range header {
+		log.Infof("> %v: %v", k, v)
+	}
 
 	upstreamUrls := c.parseUpstream()
 
@@ -196,6 +199,11 @@ func (c *MockService) sendHttpRequest(upstreamUrl string, header http.Header, sp
 	})
 	if err == nil {
 		byteResp, _ := ioutil.ReadAll(resp.Body)
+
+		log.Infof("Response Header from HTTP")
+		for k, v := range resp.Header {
+			log.Infof("< %v: %v", k, v)
+		}
 		_ = json.Unmarshal(byteResp, upstreamResponse)
 		if newSpan != nil {
 			newSpan.LogFields(
@@ -227,7 +235,6 @@ func (c *MockService) sendTcpRequest(u *url.URL, header http.Header) (upstreamRe
 	tcpResponse, err = c.mockTcpClient.Send(context.Background(), u.Host, header)
 	if err == nil {
 		upstreamResponse = tcpResponse.Response
-		log.Debugf("%+v", tcpResponse.Header)
 	}
 
 	return

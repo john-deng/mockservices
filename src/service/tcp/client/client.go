@@ -20,7 +20,7 @@ type ConnPool map[string]pool.Pool
 
 type MockTcpClient struct {
 	connPool ConnPool
-	mutex sync.Mutex
+	mutex    sync.Mutex
 }
 
 func newMockTcpClientService() *MockTcpClient {
@@ -33,7 +33,7 @@ func init() {
 	app.Register(newMockTcpClientService)
 }
 
-func (s *MockTcpClient) connect(address string)  (p pool.Pool, err error) {
+func (s *MockTcpClient) connect(address string) (p pool.Pool, err error) {
 	//create a pool
 	p = s.connPool[address]
 	if p == nil {
@@ -52,6 +52,10 @@ func (s *MockTcpClient) connect(address string)  (p pool.Pool, err error) {
 			return
 		}
 		s.connPool[address] = p
+	}
+
+	if p != nil {
+		log.Infof("TCP client connected to %v", address)
 	}
 	return
 }
@@ -74,10 +78,16 @@ func (s *MockTcpClient) Send(ctx context.Context, address string, header http.He
 			b, err = json.Marshal(header)
 			num, err = fmt.Fprintf(conn, string(b)+"\n")
 			if err == nil {
-				log.Debugf("%v bytes read", num)
+				log.Debugf("%v bytes read from TCP", num)
 				resp, err = bufio.NewReader(conn).ReadBytes('\n')
 				if err == nil {
 					err = json.Unmarshal(resp, response)
+					if err == nil {
+						log.Infof("Response Header from TCP")
+						for k, v := range response.Header {
+							log.Infof("< %v: %v", k, v)
+						}
+					}
 				}
 			}
 		}

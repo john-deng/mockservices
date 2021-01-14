@@ -15,7 +15,6 @@ func TestBasic(t *testing.T) {
 		Body().Contains("mockservices")
 }
 
-
 func TestUpstreams(t *testing.T) {
 
 	testApp := web.NewTestApp(t, newController).
@@ -27,7 +26,6 @@ func TestUpstreams(t *testing.T) {
 		Expect().Status(http.StatusOK).
 		Body().Contains("mockservices")
 }
-
 
 func TestUpstreamsFI(t *testing.T) {
 
@@ -46,7 +44,6 @@ func TestUpstreamsFI(t *testing.T) {
 		Body().Contains("mockservices")
 }
 
-
 func TestGRpcUpstreamsFI(t *testing.T) {
 
 	testApp := web.NewTestApp(t, newController).
@@ -58,12 +55,11 @@ func TestGRpcUpstreamsFI(t *testing.T) {
 		WithHeader("fi-app", "mockservices").
 		WithHeader("fi-ver", "v1").
 		WithHeader("fi-cluster", "my-cluster").
-		//WithHeader("fi-code", "503").
+		WithHeader("fi-code", "503").
 		//WithHeader("fi-delay", "2").
 		Expect().Status(http.StatusOK).
 		Body().Contains("Success")
 }
-
 
 func TestTcpUpstreamsFI(t *testing.T) {
 
@@ -81,4 +77,3 @@ func TestTcpUpstreamsFI(t *testing.T) {
 		Expect().Status(http.StatusOK).
 		Body().Contains("Success")
 }
-
