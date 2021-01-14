@@ -1,4 +1,3 @@
-
 package server
 
 import (
@@ -14,7 +13,6 @@ import (
 	"solarmesh.io/mockservices/src/model"
 	"solarmesh.io/mockservices/src/service"
 )
-
 
 // server is used to implement protobuf.GreeterServer.
 type MockServer struct {
@@ -69,7 +67,8 @@ func (s *MockServer) Listen(port string) {
 				request.Header = make(http.Header)
 				response = new(model.TcpResponse)
 				// parse data
-				err = json.Unmarshal(netData, request)
+				//log.Debugf("request: %v", string(netData))
+				err = json.Unmarshal(netData, &request.Header)
 				if err == nil {
 					response.Response, err = s.mockService.SendRequest("TCP", nil, request.Header)
 					response.Header = request.Header
