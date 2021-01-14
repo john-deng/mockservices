@@ -1,0 +1,7 @@
+###
+
+GET http://localhost:8080
+fi-app: user-db
+fi-ver: v1
+fi-code: 503
+fi-delay: 100
