@@ -128,14 +128,14 @@ func (c *MockService) SendRequest(protocol string, span *jaeger.ChildSpan, heade
 
 	c.injectFault(fiApp, fiVer, fiCluster, fiDelay, fiCode, response)
 
-	// response
-	respStr, _ := json.Marshal(response)
-	log.Info(string(respStr))
+	// Marshall the Colorized JSON
+	respb, err := json.MarshalIndent(response, "", "  ")
+	log.Infof(string(respb))
 
 	if span != nil && span.Span != nil {
 		span.LogFields(
 			olog.String("event", c.AppName),
-			olog.String("value", string(respStr)),
+			olog.String("value", string(respb)),
 		)
 	}
 
