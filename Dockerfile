@@ -1,4 +1,4 @@
-FROM golang:1.15.6 as builder
+FROM golang:1.15.6-alpine as builder
 
 ARG GOPROXY=https://goproxy.cn
 ENV GOPROXY $GOPROXY
