@@ -69,18 +69,17 @@ func (s *MockGRpcClient) Send(ctx context.Context, address string, header http.H
 	// pass context.Background() for the sake of simplicity
 	if mockServiceClient != nil {
 		// send header to upstream
-		md := make(metadata.MD)
-		for k, v := range header {
-			md[k] = v
-			ctx = metadata.AppendToOutgoingContext(ctx, k, v[0])
-		}
+		//md := make(metadata.MD)
+		//for k, v := range header {
+		//	md[k] = v
+		//	ctx = metadata.AppendToOutgoingContext(ctx, k, v[0])
+		//}
 
 		// Anything linked to this variable will fetch response headers.
 		var responseHeader metadata.MD
 		response, err = mockServiceClient.Send(ctx, &protobuf.MockRequest{Host: address}, grpc.Header(&responseHeader))
 		log.Infof("Response Header from GRPC")
 		for k, v := range responseHeader {
-			md[k] = v
 			log.Infof("< %v: %v", k, v)
 		}
 	}
