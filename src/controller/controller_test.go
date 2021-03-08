@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"hidevops.io/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
 )
 
 func TestBasic(t *testing.T) {

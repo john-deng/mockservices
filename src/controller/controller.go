@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"hidevops.io/hiboot/pkg/app"
-	webctx "hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/starter/jaeger"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	webctx "github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
 	"solarmesh.io/mockservices/src/model"
 	"solarmesh.io/mockservices/src/service"
 )

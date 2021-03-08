@@ -19,14 +19,14 @@
 package main
 
 import (
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/starter/actuator"
-	"hidevops.io/hiboot/pkg/starter/grpc"
-	"hidevops.io/hiboot/pkg/starter/httpclient"
-	"hidevops.io/hiboot/pkg/starter/jaeger"
-	"hidevops.io/hiboot/pkg/starter/locale"
-	"hidevops.io/hiboot/pkg/starter/logging"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/starter/actuator"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
+	"github.com/hidevopsio/hiboot/pkg/starter/httpclient"
+	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
+	"github.com/hidevopsio/hiboot/pkg/starter/locale"
+	"github.com/hidevopsio/hiboot/pkg/starter/logging"
 	_ "solarmesh.io/mockservices/src/controller"
 	_ "solarmesh.io/mockservices/src/service/grpc/server"
 	"solarmesh.io/mockservices/src/service/tcp"

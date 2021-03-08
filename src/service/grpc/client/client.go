@@ -26,9 +26,9 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/starter/grpc"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
 	"solarmesh.io/mockservices/src/service/grpc/protobuf"
 )
 

@@ -11,8 +11,8 @@ import (
 
 	"github.com/silenceper/pool"
 	"golang.org/x/net/context"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"solarmesh.io/mockservices/src/model"
 )
 
