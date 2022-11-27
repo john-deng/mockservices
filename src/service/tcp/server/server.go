@@ -10,8 +10,8 @@ import (
 
 	"github.com/hidevopsio/hiboot/pkg/app"
 	"github.com/hidevopsio/hiboot/pkg/log"
-	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/service"
+	"github.com/john-deng/mockservices/src/model"
+	"github.com/john-deng/mockservices/src/service"
 )
 
 // server is used to implement protobuf.GreeterServer.

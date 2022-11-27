@@ -5,8 +5,8 @@ import (
 	webctx "github.com/hidevopsio/hiboot/pkg/app/web/context"
 	"github.com/hidevopsio/hiboot/pkg/at"
 	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
-	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/service"
+	"github.com/john-deng/mockservices/src/model"
+	"github.com/john-deng/mockservices/src/service"
 )
 
 // controller
@@ -15,13 +15,13 @@ type controller struct {
 	at.RestController
 	at.RequestMapping `value:"/"`
 
-	mockService    *service.MockService
+	mockService *service.MockService
 }
 
 // newController inject mockService
 func newController(mockService *service.MockService) *controller {
 	return &controller{
-		mockService:    mockService,
+		mockService: mockService,
 	}
 }
 
@@ -41,4 +41,3 @@ func (c *controller) Get(_ struct {
 	}
 	return
 }
-

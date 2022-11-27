@@ -24,12 +24,12 @@ import (
 	"net/http"
 	"strings"
 
-	"golang.org/x/net/context"
-	"google.golang.org/grpc/metadata"
 	"github.com/hidevopsio/hiboot/pkg/app"
 	"github.com/hidevopsio/hiboot/pkg/log"
 	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
-	"solarmesh.io/mockservices/src/service/grpc/protobuf"
+	"github.com/john-deng/mockservices/src/service/grpc/protobuf"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
 )
 
 // server is used to implement protobuf.GreeterServer.

@@ -23,16 +23,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
+	"github.com/john-deng/mockservices/src/model"
+	"github.com/john-deng/mockservices/src/service"
+	"github.com/john-deng/mockservices/src/service/grpc/protobuf"
 	"golang.org/x/net/context"
 	ggrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"github.com/hidevopsio/hiboot/pkg/log"
-	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
-	"solarmesh.io/mockservices/src/model"
-	"solarmesh.io/mockservices/src/service"
-	"solarmesh.io/mockservices/src/service/grpc/protobuf"
 )
 
 // server is used to implement protobuf.GreeterServer.
@@ -49,7 +49,6 @@ func init() {
 	// please note that holaServiceServerImpl must implement protobuf.MockServiceServer, or it won't be registered.
 	grpc.Server(protobuf.RegisterMockServiceServer, newMockServiceServer)
 }
-
 
 // Send implementation
 func (s *MockGRpcServerService) Send(ctx context.Context, request *protobuf.MockRequest) (response *protobuf.MockResponse, err error) {

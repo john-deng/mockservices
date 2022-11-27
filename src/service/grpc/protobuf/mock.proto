@@ -17,7 +17,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "io.solarmesh.mockservices.mock";
 option java_outer_classname = "MockProto";
-option go_package = "solarmesh.io/mockservices/src/grpc/protobuf";
+option go_package = "github.com/john-deng/mockservices/src/grpc/protobuf";
 // target package name
 package protobuf;
 

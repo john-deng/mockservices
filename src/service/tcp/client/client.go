@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/silenceper/pool"
-	"golang.org/x/net/context"
 	"github.com/hidevopsio/hiboot/pkg/app"
 	"github.com/hidevopsio/hiboot/pkg/log"
-	"solarmesh.io/mockservices/src/model"
+	"github.com/john-deng/mockservices/src/model"
+	"github.com/silenceper/pool"
+	"golang.org/x/net/context"
 )
 
 type ConnPool map[string]pool.Pool

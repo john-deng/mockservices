@@ -27,9 +27,9 @@ import (
 	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
 	"github.com/hidevopsio/hiboot/pkg/starter/locale"
 	"github.com/hidevopsio/hiboot/pkg/starter/logging"
-	_ "solarmesh.io/mockservices/src/controller"
-	_ "solarmesh.io/mockservices/src/service/grpc/server"
-	"solarmesh.io/mockservices/src/service/tcp"
+	_ "github.com/john-deng/mockservices/src/controller"
+	_ "github.com/john-deng/mockservices/src/service/grpc/server"
+	"github.com/john-deng/mockservices/src/service/tcp"
 )
 
 func main() {

@@ -10,17 +10,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/opentracing/opentracing-go"
-	olog "github.com/opentracing/opentracing-go/log"
-	"golang.org/x/net/context"
 	"github.com/hidevopsio/hiboot/pkg/app"
 	"github.com/hidevopsio/hiboot/pkg/log"
 	"github.com/hidevopsio/hiboot/pkg/starter/httpclient"
 	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
-	"solarmesh.io/mockservices/src/model"
-	grpcclient "solarmesh.io/mockservices/src/service/grpc/client"
-	"solarmesh.io/mockservices/src/service/grpc/protobuf"
-	tcpclient "solarmesh.io/mockservices/src/service/tcp/client"
+	"github.com/john-deng/mockservices/src/model"
+	grpcclient "github.com/john-deng/mockservices/src/service/grpc/client"
+	"github.com/john-deng/mockservices/src/service/grpc/protobuf"
+	tcpclient "github.com/john-deng/mockservices/src/service/tcp/client"
+	"github.com/opentracing/opentracing-go"
+	olog "github.com/opentracing/opentracing-go/log"
+	"golang.org/x/net/context"
 )
 
 // MockService
@@ -33,8 +33,8 @@ type MockService struct {
 	Upstreams    []string `value:"${upstream.urls}"`
 	AppName      string   `value:"${app.name}"`
 	Version      string   `value:"${app.version}"`
-	ClusterName  string   `value:"${cluster.name:my-cluster}"`
-	UserData     string   `value:"${user.data:solarmesh}"`
+	ClusterName  string   `value:"${cluster.name:cluster1}"`
+	UserData     string   `value:"${user.data:test}"`
 }
 
 func newMockService(httpClient httpclient.Client,

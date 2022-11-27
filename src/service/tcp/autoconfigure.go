@@ -3,7 +3,7 @@ package tcp
 import (
 	"github.com/hidevopsio/hiboot/pkg/app"
 	"github.com/hidevopsio/hiboot/pkg/at"
-	"solarmesh.io/mockservices/src/service/tcp/server"
+	"github.com/john-deng/mockservices/src/service/tcp/server"
 )
 
 const Profile string = "tcp"
@@ -23,7 +23,6 @@ func init() {
 }
 
 type ServerListener struct {
-
 }
 
 func (c *configuration) ServerListener(mockServer *server.MockServer) (serverListener *ServerListener) {
